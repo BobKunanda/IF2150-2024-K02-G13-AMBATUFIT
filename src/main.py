@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from PyQt5.QtGui import QFontDatabase, QFont
-
+from frontend.Exercise.exercise import Exercise
 font_path = "src/assets/fonts/pjs-med.ttf"
 
 class MainWindow(QMainWindow):
@@ -26,7 +26,7 @@ class MainWindow(QMainWindow):
         self.pageManager.addWidget(home)
         self.pageManager.setCurrentWidget(home) # --> Defaulnya bakal nampilin home dulu
         
-        excercise = QLabel("exercise")
+        excercise = Exercise()
         self.pageManager.addWidget(excercise)
 
         activity = QLabel("activity")
