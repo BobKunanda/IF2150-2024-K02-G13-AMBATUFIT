@@ -2,8 +2,9 @@ import sys
 import os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
-from PyQt5.QtGui import QColor, QPalette, QIcon, QFont
+from PyQt5.QtGui import QColor, QPalette, QIcon, QFont, QFontDatabase, QFont
 
+font_path = "src/assets/fonts/pjs-med.ttf"
 
 class HoverButton(QPushButton):
     def __init__(self, label="", parent=None):
@@ -48,16 +49,16 @@ class HoverButton(QPushButton):
         self.setStyleSheet(self.default_style)
         self.is_active = False
 
-    def enterEvent(self, event):
+    def enterEvent(self, a0):
         if not self.is_active:
             self.hover_timer.start(300)
-        super().enterEvent(event)
+        super().enterEvent(a0)
 
-    def leaveEvent(self, event):
+    def leaveEvent(self, a0):
         if not self.is_active:
             self.hover_timer.stop()
             self.setStyleSheet(self.default_style)
-        super().leaveEvent(event)
+        super().leaveEvent(a0)
 
     def apply_hover_style(self):
         if not self.is_active:
@@ -81,11 +82,18 @@ class SideBar(QWidget):
         self.setPalette(palette)
         self.setAutoFillBackground(True)
 
+        # Font
+        font_path = "src/assets/fonts/pjs-med.ttf"
+        self.font_id = QFontDatabase.addApplicationFont(font_path)
+        self.font_family = QFontDatabase.applicationFontFamilies(self.font_id)[0]
+        font = QFont(self.font_family, 9)
+
         self.toggleButton = QPushButton("")
         toggleIcon = QIcon(os.path.abspath("src/assets/icons/sidebar.png"))
         self.toggleButton.setIcon(toggleIcon)
         self.toggleButton.setIconSize(QSize(30, 30))
         self.toggleButton.setFixedSize(40, 40)
+        self.toggleButton.setFont(font)
         self.toggleButton.setStyleSheet("""
         QPushButton {
             border: none;
@@ -99,7 +107,6 @@ class SideBar(QWidget):
 
         # Setting general
         maxContainerWidth = 200
-        font = QFont("Inter", 8)
 
         # -------Tombol Profil--------------
         self.profileContainer = QWidget()
@@ -125,13 +132,13 @@ class SideBar(QWidget):
         }
 
         """)
-        profileLayout.addWidget(self.profileButton, alignment=Qt.AlignLeft | Qt.AlignTop)
+        profileLayout.addWidget(self.profileButton, alignment= Qt.AlignmentFlag.AlignCenter)
 
         self.usernameLabel = QLabel("Username: AryoBama")
         self.usernameLabel.setFont(font)
         self.usernameLabel.setStyleSheet("color:#ffffff")
         self.usernameLabel.hide()
-        profileLayout.addWidget(self.usernameLabel, alignment=Qt.AlignCenter)
+        profileLayout.addWidget(self.usernameLabel, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.profileContainer.setLayout(profileLayout)
         self.profileContainer.setMaximumHeight(70)
@@ -168,7 +175,7 @@ class SideBar(QWidget):
         self.setLayout(layout)
 
         self.collapsed_width = 40
-        self.expanded_width = 150
+        self.expanded_width = 200
 
         self.setFixedWidth(self.collapsed_width)
         self.animation = QPropertyAnimation(self, b"minimumWidth")
