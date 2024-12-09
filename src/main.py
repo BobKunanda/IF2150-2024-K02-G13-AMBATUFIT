@@ -1,4 +1,6 @@
 import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from frontend.profile import Profile
@@ -20,8 +22,8 @@ class MainWindow(QMainWindow):
         self.mainLayout.addWidget(self.sidebar)
 
         # Ini bakalan diisi ntar
-
-        profile = Profile()
+        db_filename = os.path.join(os.path.dirname(__file__), 'data', 'data.db')
+        profile = Profile(db_filename)
         self.pageManager.addWidget(profile)
 
         home = QLabel("Home")
