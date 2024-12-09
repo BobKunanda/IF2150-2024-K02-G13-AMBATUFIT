@@ -1,16 +1,18 @@
 import sys
 import os
-from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QTextEdit, QVBoxLayout,QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QPushButton, QLabel, QStackedLayout, QLineEdit
+from PyQt5.QtWidgets import QMessageBox,QGraphicsDropShadowEffect, QTextEdit, QVBoxLayout,QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QPushButton, QLabel, QStackedLayout, QLineEdit
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
+from backend.controllers.PersonalDataController import ProfileController
 
 class Profile(QWidget):
-    def __init__(self):
+    def __init__(self, db_filename):
         super().__init__()
-
+        self.controller = ProfileController(db_filename)  
         self.initUI()
 
     def initUI(self):
+        self.profile_data = self.controller.get_profile_data()  
         mainLayout = QVBoxLayout()
         mainLayout.setContentsMargins(0, 0, 0, 0)
         mainLayout.setSpacing(20)
@@ -65,13 +67,11 @@ class Profile(QWidget):
         """)
 
         self.editButton.clicked.connect(self.toggleEditMode)
-        
-
 
         headerLayout.addWidget(self.imageButton, alignment=Qt.AlignLeft)
         headerLayout.addWidget(self.editButton, alignment=Qt.AlignLeft)
         spacer = QSpacerItem(0, 0, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        headerLayout.addItem(spacer)  
+        headerLayout.addItem(spacer)
 
         self.header.setLayout(headerLayout)
         self.header.setMinimumHeight(150)
@@ -88,16 +88,15 @@ class Profile(QWidget):
         self.profileLayout.setContentsMargins(5, 10, 10, 10)
         self.profileLayout.setSpacing(20)
 
-        self.labels = ["Name", "Age", "Height", "Weight", "Fitness Goal"]
-        self.profileData = ["John Doe", "30", 180, 80, "Lose 10 lbs"]
+        self.labels = [("nama","Name"), ("usia","Age"), ("tinggi","Height"), ("berat","Weight"), ("tujuan","Fitness Goal")]
         self.inputFields = {}
 
         for i, label in enumerate(self.labels):
-            container = self.createForm(label, self.profileData[i])
+            container = self.createForm(label[1], self.profile_data[label[0]])  # Gunakan data dari controller
             self.profileLayout.addWidget(container, alignment=Qt.AlignLeft)
 
         spacer = QSpacerItem(0, 0, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.profileLayout.addItem(spacer) 
+        self.profileLayout.addItem(spacer)
         self.profileContainer.setLayout(self.profileLayout)
         self.footerLayout.addWidget(self.profileContainer)
 
@@ -107,7 +106,7 @@ class Profile(QWidget):
         self.editLayout.setSpacing(10)
 
         for i, label in enumerate(self.labels):
-            container = self.createEditField(label, self.profileData[i])
+            container = self.createEditField(label[1], self.profile_data[label[0]])  # Gunakan data dari controller
             self.editLayout.addWidget(container, alignment=Qt.AlignLeft)
 
         self.confirmButton = QPushButton("Confirm Changes")
@@ -155,8 +154,8 @@ class Profile(QWidget):
 
     def toggleEditMode(self):
         self.isEditing = not self.isEditing
-        self.footerLayout.setCurrentIndex(int(self.isEditing)) 
-        self.editButton.setVisible(not self.isEditing) 
+        self.footerLayout.setCurrentIndex(int(self.isEditing))
+        self.editButton.setVisible(not self.isEditing)
 
     def createForm(self, label, content):
         formContainer = QWidget()
@@ -165,9 +164,11 @@ class Profile(QWidget):
         layoutForm.setContentsMargins(20, 0, 0, 0)
         layoutForm.setSpacing(2)
 
-       
         if label != "Fitness Goal":
             content = str(content) if isinstance(content,int) else content
+            content = str(content) if isinstance(content,float) else content
+            if content == None:
+                content = ""
 
             if label == "Weight":
                 textlabel.setText(label.ljust(12) + ":   " + content+" Kg")
@@ -204,8 +205,8 @@ class Profile(QWidget):
             self.fitnessGoalWidget.setStyleSheet("""
                 QTextEdit {
                     border: 2px solid #000000;
-                    border-radius: 10px;  /* Rounded corners */
-                    padding: 10px;        /* Adjust padding */
+                    border-radius: 10px;
+                    padding: 10px;
                     background-color: #f5f5f5;
                     font-size: 14px;
                     font-family: Arial, sans-serif;
@@ -213,17 +214,14 @@ class Profile(QWidget):
                 }
             """)
 
-            # Apply drop shadow effect
             shadow_effect = QGraphicsDropShadowEffect()
-            shadow_effect.setBlurRadius(12)  
-            shadow_effect.setOffset(4, 4)  
-            shadow_effect.setColor(QColor(0, 0, 0, 160)) 
+            shadow_effect.setBlurRadius(12)
+            shadow_effect.setOffset(4, 4)
+            shadow_effect.setColor(QColor(0, 0, 0, 160))
 
-            # Terapkan efek bayangan ke QTextEdit
             self.fitnessGoalWidget.setGraphicsEffect(shadow_effect)
 
             layoutForm.addWidget(self.fitnessGoalWidget, alignment=Qt.AlignTop)
-
 
         formContainer.setLayout(layoutForm)
 
@@ -236,7 +234,7 @@ class Profile(QWidget):
         layoutForm.setSpacing(10)
 
         if label == "Fitness Goal":
-            layoutForm = QVBoxLayout() 
+            layoutForm = QVBoxLayout()
             layoutForm.setContentsMargins(20, 0, 0, 0)
             layoutForm.setSpacing(10)
             inputField = QTextEdit()
@@ -248,8 +246,6 @@ class Profile(QWidget):
                 border: 2px solid #2980b9;
                 border-radius: 5px;
                 padding: 10px;
-                font-size: 14px;
-                font-family: Arial, sans-serif;
                 background-color: #f9f9f9;
                 color: #2c3e50;
             }
@@ -263,18 +259,16 @@ class Profile(QWidget):
         else:
             inputField = QLineEdit()
             if label == "Height" or label == "Weight" or label == "Age":
-                # Apply QIntValidator to allow only integers (numbers)
                 validator = QIntValidator()
                 inputField.setValidator(validator)
             content = str(content) if isinstance(content,int) else content
+            content = str(content) if isinstance(content,float) else content
             inputField.setText(content)
             inputField.setStyleSheet("""
             QLineEdit {
                 border: 2px solid #2980b9;
                 border-radius: 5px;
                 padding: 5px;
-                font-size: 14px;
-                font-family: Arial, sans-serif;
                 background-color: #f9f9f9;
                 color: #2c3e50;
             }
@@ -301,40 +295,73 @@ class Profile(QWidget):
         return formContainer
 
     def confirmChanges(self):
-
-        for i, label in enumerate(self.labels):
-            if label == "Fitness Goal":
-
-                new_value = self.inputFields[label].toPlainText()
-                self.profileData[i] = new_value  # Update data
-                self.fitnessGoalWidget.setText(new_value) 
+        # Validasi input sebelum menyimpan perubahan
+        updated_data = {}
+        for label in self.labels:
+            if label[1] == "Fitness Goal":
+                new_value = self.inputFields[label[1]].toPlainText().strip()
             else:
-                new_value = self.inputFields[label].text()  
-                self.profileData[i] = new_value  
+                new_value = self.inputFields[label[1]].text().strip()
 
+            # Tampilkan pop-up jika input kosong
+            if not new_value:
+                self.showWarningPopup(f"{label[1]} cannot be empty.")
+                return
+
+            updated_data[label[0]] = new_value
+
+        # Update data di controller
+        self.controller.update_profile_data(updated_data)
+
+        # Sinkronkan data lokal dengan yang di controller
+        self.profile_data = self.controller.get_profile_data()
+
+        # Update tampilan untuk mencerminkan data baru
         for i, label in enumerate(self.labels):
             container = self.profileLayout.itemAt(i).widget()
-            if label != "Fitness Goal":
-                if label == "Weight":
-                    text = f"{label}:   {self.profileData[i]} Kg"
-                elif label == "Height":
-                    text = f"{label}:   {self.profileData[i]} Cm"
+            if label[1] == "Fitness Goal":
+                new_value = self.profile_data[label[0]]
+                self.fitnessGoalWidget.setText(new_value)
+            else:
+                if label[1] == "Weight":
+                    text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]} Kg"
+                elif label[1] == "Height":
+                    text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]} Cm"
                 else:
-                    text = f"{label}:   {self.profileData[i]}"
-                container.findChild(QLabel).setText(text)
+                    text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]}"
+                container.layout().itemAt(0).widget().setText(text)
 
-        self.toggleEditMode()  
+        # Kembali ke mode tampilan
+        self.toggleEditMode()
+
+    def showWarningPopup(self, message):
+        msgBox = QMessageBox(self)
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setWindowTitle("Warning")
+        msgBox.setText(message)
+        msgBox.setStyleSheet("""
+            QMessageBox {
+                background-color: #f5f5f5;
+                color: #2c3e50;
+                font-family: Arial;
+                font-size: 14px;
+            }
+            QMessageBox QLabel {
+                font-weight: bold;
+            }
+            QMessageBox QPushButton {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-size: 12px;
+            }
+            QMessageBox QPushButton:hover {
+                background-color: #5dade2;
+            }
+        """)
+        msgBox.exec_()
 
     def discardChanges(self):
-
-        for i, label in enumerate(self.labels):
-            if label == "Fitness Goal":
-
-                self.fitnessGoalWidget.setText(self.profileData[i])
-            else:
-                # Pulihkan data asli pada QLabel
-                container = self.profileLayout.itemAt(i).widget()
-                text = f"{label}:   {self.profileData[i]}"
-                container.findChild(QLabel).setText(text)
-
-        self.toggleEditMode() 
+        self.toggleEditMode()
