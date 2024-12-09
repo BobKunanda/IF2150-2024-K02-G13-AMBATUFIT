@@ -6,6 +6,46 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 
+class ExerciseData:
+    def __init__(self, id, title, duration, type, description, exercise):
+        self.id = id
+        self.title = title
+        self.duration = duration
+        self.type = type
+        self.description = description
+        self.exercise = exercise
+
+class ExerciseManager:
+    def __init__(self):
+        self.exercises = []
+        self.next_id = 1  # Simple auto-increment mechanism for IDs
+
+    def add_exercise(self, title, duration, type, description, exercises):
+        new_exercise = ExerciseData(self.next_id, title, duration, type, description, exercises)
+        self.exercises.append(new_exercise)
+        self.next_id += 1
+        return new_exercise
+
+    def remove_exercise(self, id):
+        self.exercises = [ex for ex in self.exercises if ex.id != id]
+
+    def update_exercise(self, id, title, duration, type, description, exercises):
+        for ex in self.exercises:
+            if ex.id == id:
+                ex.title = title
+                ex.duration = duration
+                ex.type = type
+                ex.description = description
+                ex.exercises = exercises
+                return ex
+        return None
+
+    def get_exercises(self):
+        for ex in self.exercises:
+            if ex.id == id:
+                return ex
+        return None
+
 
 class Exercise(QWidget):
     def __init__(self):
@@ -41,9 +81,12 @@ class Exercise(QWidget):
         self.content_stack.addWidget(self.info_card)
 
         # Edit Card
-        self.edit_card = self.edit_exercise_card()
+        self.edit_card = self.edit_exercise_card(False)
         self.content_stack.addWidget(self.edit_card)
 
+        # Add Card
+        self.add_card = self.edit_exercise_card(True)
+        self.content_stack.addWidget(self.add_card)
         self.setLayout(main_layout)
 
     def exercise_list_card(self):
@@ -62,7 +105,7 @@ class Exercise(QWidget):
         layout.addWidget(scroll_area)
 
         # Add Default "Back Day" Card
-        self.add_exercise_card("Back Day", "Duration: 30 min    Type: Strength Training", "Description", [("Push-ups", 15), ("Pull-ups", 10), ("Sit-ups", 10), ("Looks-Maxxing", 10) , ("Mewing", 25)])
+        #self.add_exercise_card("Back Day", "Duration: 30 min    Type: Strength Training", "Description", [("Push-ups", 15), ("Pull-ups", 10), ("Sit-ups", 10), ("Looks-Maxxing", 10) , ("Mewing", 25)])
 
         # Floating Add Button
         add_button = QPushButton("+")
@@ -82,12 +125,24 @@ class Exercise(QWidget):
             """
         )
         add_button.setFixedSize(50, 50)
-        add_button.clicked.connect(self.add_new_exercise)
+        add_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(3))
         layout.addWidget(add_button, alignment=Qt.AlignRight | Qt.AlignBottom)
 
         widget.setLayout(layout)
         return widget
 
+    def refresh_exercise_list(self):
+        # Clear existing widgets
+        for i in reversed(range(self.exercise_layout.count())):
+            self.exercise_layout.itemAt(i).widget().deleteLater()
+        # Re-add from manager
+        for exercise in self.manager.exercises:
+            self.add_exercise_card(exercise)
+            
+    def add_exercise_card(self, title, info, description, exercises):
+        exercise = self.manager.add_exercise(title, info, description, exercises)
+        self.update_ui()
+        
     def content_exercise_card(self, title, info, description, list_of_exercise):
         """Creates a detailed view for a specific exercise."""
         card = QFrame()
@@ -232,7 +287,7 @@ class Exercise(QWidget):
             QPushButton {
                 background-color: red;
                 color: white;
-                padding: 5px 20px;
+                padding: 5px 25px;
                 border-radius: 5px;
             }
             QPushButton:hover {
@@ -240,7 +295,7 @@ class Exercise(QWidget):
             }
             """
         )
-        delete_button.setFixedWidth(150)
+        delete_button.setFixedWidth(200)
         delete_button.clicked.connect(lambda: self.confirm_deletion(card, card_data))
         title_layout.addWidget(delete_button, alignment=Qt.AlignRight)
 
@@ -282,7 +337,7 @@ class Exercise(QWidget):
         card.setLayout(layout)
         self.exercise_layout.addWidget(card)
     
-    def edit_exercise_card(self):
+    def edit_exercise_card(self, add):
         """Creates the edit exercise card."""
         card = QWidget()
         layout = QVBoxLayout()
@@ -316,6 +371,7 @@ class Exercise(QWidget):
         self.edit_description.setStyleSheet("padding: 10px; border: 1px solid #DDDDDD; border-radius: 5px;")
         layout.addWidget(self.edit_description)
 
+        # Exercise Dropdown
         # Save Button
         save_button = QPushButton("Save")
         save_button.setFont(QFont("Inter", 12))
@@ -332,7 +388,10 @@ class Exercise(QWidget):
             }
             """
         )
-        save_button.clicked.connect(self.save_exercise_details)
+        if(add):
+            save_button.clicked.connect(self.confirm_add)
+        else:
+            save_button.clicked.connect(self.confirm_save)
         save_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(1))
         layout.addWidget(save_button, alignment=Qt.AlignRight)
 
@@ -385,10 +444,13 @@ class Exercise(QWidget):
         self.update_content_card(title, info, description, exercises)
         self.content_stack.setCurrentIndex(1)
 
-    def add_new_exercise(self):
+    def add_new_exercise_scheme(self, title, info, description, exercises ):
         """Adds a dynamically created exercise card."""
         count = self.exercise_layout.count() + 1
-        self.add_exercise_card(f"Exercise {count}", "Duration: -    Type: -", "-", [("-", 0)])
+        self.add_exercise_card(f"{title}", "Duration: -    Type: -", "-", [("-", 0)])
+
+    #def add_new_exercise(self):
+
 
     def confirm_deletion(self, card, card_data):
         reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete this training?',
@@ -400,6 +462,22 @@ class Exercise(QWidget):
             if card_data in self.exercise_data:
                 self.exercise_data.remove(card_data)
 
+    def confirm_save(self):
+        reply = QMessageBox.question(self, 'Confirm Save', 'Are you sure you want to save this?',
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.save_exercise_details
+
+    def confirm_add(self):
+        reply = QMessageBox.question(self, 'Confirm Add', 'Are you sure you want to add this?',
+                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.save_exercise_details
+            self.add_new_exercise_scheme
+               
+            
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
