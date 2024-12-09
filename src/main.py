@@ -1,12 +1,15 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
+from frontend.profile import Profile
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
         self.mainLayout = QHBoxLayout()
+        self.mainLayout.setContentsMargins(0,0,0,0)
+        self.mainLayout.setSpacing(0)
 
         self.pageManager = QStackedLayout()
         self.subContainer = QWidget()
@@ -16,7 +19,7 @@ class MainWindow(QMainWindow):
 
         # Ini bakalan diisi ntar
 
-        profile = QLabel("Profile")
+        profile = Profile()
         self.pageManager.addWidget(profile)
 
         home = QLabel("Home")
