@@ -2,7 +2,9 @@ import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from frontend.profile import Profile
+from PyQt5.QtGui import QFontDatabase, QFont
 
+font_path = "src/assets/fonts/pjs-med.ttf"
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -60,9 +62,11 @@ class MainWindow(QMainWindow):
         self.sidebar.button_widgets[2].clicked.connect(lambda: self.displayActivity(activity))
         self.sidebar.button_widgets[3].clicked.connect(lambda: self.displayNutrion(nutrition))
         self.sidebar.button_widgets[4].clicked.connect(lambda: self.displayAdvice(advice))
-        self.sidebar.button_widgets[5].clicked.connect(lambda: self.displayNotification(notification))
-
+        self.sidebar.button_widgets[5].clicked.connect(lambda: self.displayNotification(notification))    
         
+        # Font
+        self.font_id = QFontDatabase.addApplicationFont(font_path)
+        self.font_family = QFontDatabase.applicationFontFamilies(self.font_id)[0]
 
     def displayProfile(self,widget):
         self.pageManager.setCurrentWidget(widget)
@@ -90,4 +94,6 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+    custom_font = QFont(window.font_family, 10)
+    app.setFont(custom_font)
     sys.exit(app.exec_())
