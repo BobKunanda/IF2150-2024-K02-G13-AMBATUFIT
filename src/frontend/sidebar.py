@@ -50,7 +50,7 @@ class HoverButton(QPushButton):
 
     def enterEvent(self, event):
         if not self.is_active:
-            self.hover_timer.start(300)
+            self.hover_timer.start(100)
         super().enterEvent(event)
 
     def leaveEvent(self, event):
