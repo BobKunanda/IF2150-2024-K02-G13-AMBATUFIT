@@ -14,8 +14,18 @@ class Log(QFrame):
         self.setFixedSize(900, 200)
 
         # Add a label inside the box
-        label = QLabel(text, self)
-        label.setAlignment(Qt.AlignCenter)
+        self.text_area = QVBoxLayout(self)
+        self.text1 = QLabel("Date : ")
+        self.text2 = QLabel("Calories burned : ")
+        self.text3 = QLabel("Steps : ")
+
+        self.text1.setStyleSheet("border: none; font-family: Arial; font-size:20px;")
+        self.text2.setStyleSheet("border: none;")
+        self.text3.setStyleSheet("border: none;")
+
+        self.text_area.addWidget(self.text1)
+        self.text_area.addWidget(self.text2)
+        self.text_area.addWidget(self.text3)
 
 class ScrollAreaExample(QWidget):
     def __init__(self):
@@ -25,17 +35,26 @@ class ScrollAreaExample(QWidget):
 
         #Initialize
         self.header = QLabel("Aktivitas Fisik")
+        self.layout = QVBoxLayout(self)
+        self.log_area = QScrollArea()
+        self.log_area.setWidgetResizable(True)
+        self.box_container = QWidget()
+        self.box_layout = QVBoxLayout(self.box_container)
+        self.box_layout.setAlignment(Qt.AlignTop)  # Align boxes at the top
+        self.log_area.setWidget(self.box_container)
 
         #Begin modifying
         self.header.setAlignment(Qt.AlignHCenter)
         self.header.setFont(QFont("Arial", 30))
 
         #Begin Layout
-        self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.header)
-        for i in range(5):
+        self.layout.addWidget(self.log_area)
+        for i in range(10):
             self.log = Log(f"Testing, {i}")
-            self.layout.addWidget(self.log)
+            self.box_layout.addWidget(self.log)
+
+
         self.setLayout(self.layout)
 
 
