@@ -1,13 +1,12 @@
 from src.data.database import connect_db, execute_query, fetch_one
 
-
-class PersonalData:
+class AktivitasFisik:
     def __init__(self, db_filename):
         self.db_filename = db_filename
         self._nama = None
-        self._usia = None
-        self._tinggi = None
-        self._beratBadan = None
+        self._kalori = None
+        self._capaian = None
+        self._tanggal = None
         self._tujuanKebugaran = None
         self.get_profile()
 
