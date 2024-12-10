@@ -4,6 +4,18 @@ from PyQt5.QtWidgets import QApplication, QVBoxLayout, QHBoxLayout, QWidget, QLa
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
+class Log(QFrame):
+    def __init__(self, text):
+        super().__init__()
+        self.setStyleSheet("""
+            border: 2px solid black;
+            background-color: #d0d0d0;
+        """)
+        self.setFixedSize(900, 200)
+
+        # Add a label inside the box
+        label = QLabel(text, self)
+        label.setAlignment(Qt.AlignCenter)
 
 class ScrollAreaExample(QWidget):
     def __init__(self):
@@ -13,27 +25,17 @@ class ScrollAreaExample(QWidget):
 
         #Initialize
         self.header = QLabel("Aktivitas Fisik")
-        #self.log = QScrollArea()
-        self.box = QFrame()
-        self.text1 = QLabel("Testing", self.box)
 
         #Begin modifying
         self.header.setAlignment(Qt.AlignHCenter)
         self.header.setFont(QFont("Arial", 30))
 
-        self.box.setFrameShape(QFrame.Box)
-        self.box.setLineWidth(2)
-        self.box.setStyleSheet("background-color: #f0f0f0;")
-        self.box.setFixedSize(900, 200)
-
-        self.text1.setFont(QFont("Arial", 20))
-        self.text1.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
-
         #Begin Layout
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self.header)
-        self.layout.addWidget(self.box)
-
+        for i in range(5):
+            self.log = Log(f"Testing, {i}")
+            self.layout.addWidget(self.log)
         self.setLayout(self.layout)
 
 
