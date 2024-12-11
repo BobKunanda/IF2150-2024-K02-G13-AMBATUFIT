@@ -14,14 +14,15 @@ class Log(QFrame):
         self.setFixedSize(1000, 300)
 
         # Add a label inside the box
-        self.box_area = QVBoxLayout(self)
+        self.box_area = QHBoxLayout(self)
+        self.text_area = QVBoxLayout()
         self.text1 = QLabel("Date : ")
         self.text2 = QLabel("Calories burned : ")
         self.text3 = QLabel("Steps : ")
 
         self.text1.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
-        self.text2.setStyleSheet("border:none; font-family: Arial; font-size:30px; padding-top:1px;")
-        self.text3.setStyleSheet("border:none; font-family: Arial; font-size:30px; padding-top:2px;")
+        self.text2.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
+        self.text3.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
 
 
         self.remove_button = QPushButton("X")
@@ -30,20 +31,14 @@ class Log(QFrame):
         self.row0 = QHBoxLayout()
         self.row0.addStretch()
         self.row0.addWidget(self.remove_button)
+        self.row0.setAlignment(self.remove_button, Qt.AlignTop)
 
-        self.row1 = QHBoxLayout()
-        self.row1.addWidget(self.text1)
-
-        self.row2 = QHBoxLayout()
-        self.row2.addWidget(self.text2)
-
-        self.row3 = QHBoxLayout()
-        self.row3.addWidget(self.text3)
-
+        self.text_area.addWidget(self.text1)
+        self.text_area.addWidget(self.text2)
+        self.text_area.addWidget(self.text3)
+        self.box_area.addLayout(self.text_area)
         self.box_area.addLayout(self.row0)
-        self.box_area.addLayout(self.row1)
-        self.box_area.addLayout(self.row2)
-        self.box_area.addLayout(self.row3)
+
 
 class ScrollAreaExample(QWidget):
     def __init__(self):
