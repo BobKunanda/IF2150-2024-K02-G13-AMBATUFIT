@@ -14,7 +14,7 @@ class Log(QFrame):
         self.setFixedSize(1000, 300)
 
         # Add a label inside the box
-        self.text_area = QVBoxLayout(self)
+        self.box_area = QVBoxLayout(self)
         self.text1 = QLabel("Date : ")
         self.text2 = QLabel("Calories burned : ")
         self.text3 = QLabel("Steps : ")
@@ -53,7 +53,10 @@ class ScrollAreaExample(QWidget):
         for i in range(10):
             self.log = Log(f"Testing, {i}")
             self.box_layout.addWidget(self.log)
-
+        
+        self.bottom_button = QPushButton("+")
+        self.bottom_button.setFixedHeight(50)
+        self.layout.addWidget(bottom_button)
 
         self.setLayout(self.layout)
 
