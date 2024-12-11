@@ -5,8 +5,11 @@ from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
 class Log(QFrame):
-    def __init__(self, text):
+    def __init__(self, parent_layout, i):
         super().__init__()
+        self.parent_layout = parent_layout
+        self.i = i
+
         self.setStyleSheet("""
             border: 2px solid black;
             background-color: #d0d0d0;
@@ -16,7 +19,7 @@ class Log(QFrame):
         # Add a label inside the box
         self.box_area = QHBoxLayout(self)
         self.text_area = QVBoxLayout()
-        self.text1 = QLabel("Date : ")
+        self.text1 = QLabel(f"Date : {self.i}")
         self.text2 = QLabel("Calories burned : ")
         self.text3 = QLabel("Steps : ")
 
@@ -27,7 +30,15 @@ class Log(QFrame):
 
         self.remove_button = QPushButton("X")
         self.remove_button.setFixedSize(50, 30)  # Set button size
-        self.remove_button.setStyleSheet("background-color: #de0735; color: white; border: none; border-radius: 5px;")  # Style the button
+        self.remove_button.setStyleSheet("""
+            QPushButton {
+            background-color: #de0735; color: white; border: none; border-radius: 5px;
+            }
+            QPushButton:hover{
+                background-color: #a6021d; 
+            }
+        """)
+        self.remove_button.clicked.connect(self.remove_box)
         self.row0 = QHBoxLayout()
         self.row0.addStretch()
         self.row0.addWidget(self.remove_button)
@@ -38,6 +49,12 @@ class Log(QFrame):
         self.text_area.addWidget(self.text3)
         self.box_area.addLayout(self.text_area)
         self.box_area.addLayout(self.row0)
+
+    def remove_box(self):
+        if self is not None:
+            self.parent_layout.removeWidget(self)
+            self.deleteLater()  # Deletes the widget
+
 
 
 class ScrollAreaExample(QWidget):
@@ -64,10 +81,9 @@ class ScrollAreaExample(QWidget):
         self.layout.addWidget(self.header)
         self.layout.addWidget(self.log_area)
         for i in range(10):
-            self.log = Log(f"Testing, {i}")
+            self.log = Log(self.box_layout, i)
             self.box_layout.addWidget(self.log)
         
-
         self.setLayout(self.layout)
 
 if __name__ == "__main__":
