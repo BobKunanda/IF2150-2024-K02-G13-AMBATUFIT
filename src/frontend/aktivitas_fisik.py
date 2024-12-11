@@ -11,7 +11,7 @@ class Log(QFrame):
             border: 2px solid black;
             background-color: #d0d0d0;
         """)
-        self.setFixedSize(900, 200)
+        self.setFixedSize(1000, 300)
 
         # Add a label inside the box
         self.text_area = QVBoxLayout(self)
@@ -19,9 +19,9 @@ class Log(QFrame):
         self.text2 = QLabel("Calories burned : ")
         self.text3 = QLabel("Steps : ")
 
-        self.text1.setStyleSheet("border: none; font-family: Arial; font-size:20px;")
-        self.text2.setStyleSheet("border: none;")
-        self.text3.setStyleSheet("border: none;")
+        self.text1.setStyleSheet("border: none; font-family: Arial; font-size:30px;")
+        self.text2.setStyleSheet("border: none; font-family: Arial; font-size:30px;")
+        self.text3.setStyleSheet("border: none; font-family: Arial; font-size:30px;")
 
         self.text_area.addWidget(self.text1)
         self.text_area.addWidget(self.text2)
@@ -56,8 +56,6 @@ class ScrollAreaExample(QWidget):
 
 
         self.setLayout(self.layout)
-
-
 
 if __name__ == "__main__":
     app = QApplication([])
