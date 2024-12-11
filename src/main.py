@@ -1,12 +1,8 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
-<<<<<<< Updated upstream
 from frontend.profile import Profile
-from PyQt5.QtGui import QFontDatabase, QFont
-=======
 from PyQt5.QtGui import QFontDatabase, QFont, QIcon
->>>>>>> Stashed changes
 from frontend.Exercise.exercise import Exercise
 font_path = "src/assets/fonts/pjs-med.ttf"
 class MainWindow(QMainWindow):

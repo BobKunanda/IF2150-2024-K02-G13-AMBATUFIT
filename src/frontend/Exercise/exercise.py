@@ -1,12 +1,19 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QVBoxLayout, QHBoxLayout, QPushButton, QMessageBox,
-    QLabel, QWidget, QFrame, QScrollArea, QStackedLayout, QLineEdit, QTextEdit, QComboBox
+    QApplication, QVBoxLayout, QHBoxLayout, QPushButton, QMessageBox, QListWidget, QDialog, QSpacerItem, QSizePolicy,
+    QDialogButtonBox, QLabel, QWidget, QFrame, QScrollArea, QStackedLayout, QLineEdit, QTextEdit, QComboBox
 )
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 
 class ExerciseData:
+    def __init__(self, id, exercise_name, reps, sets):
+        self.id = id
+        self.exercise_name = exercise_name
+        self.reps = reps
+        self.sets = sets
+        
+class ExerciseSchemeData:
     def __init__(self, id, title, duration, type, description, exercise):
         self.id = id
         self.title = title
@@ -21,7 +28,7 @@ class ExerciseManager:
         self.next_id = 1  # Simple auto-increment mechanism for IDs
 
     def add_exercise(self, title, duration, type, description, exercises):
-        new_exercise = ExerciseData(self.next_id, title, duration, type, description, exercises)
+        new_exercise = ExerciseSchemeData(self.next_id, title, duration, type, description, exercises)
         self.exercises.append(new_exercise)
         self.next_id += 1
         return new_exercise
@@ -40,23 +47,14 @@ class ExerciseManager:
                 return ex
         return None
 
-    def get_exercises(self):
-        for ex in self.exercises:
-            if ex.id == id:
-                return ex
-        return None
-
-
 class Exercise(QWidget):
     def __init__(self):
         super().__init__()
-        
+
         self.setWindowTitle("Ambatufit")
         self.setWindowIcon(QIcon("src/assets/icons/logo.jpg"))
         self.setGeometry(100, 100, 800, 600)
-
-        # Data structure to store exercise details
-        self.exercise_data = []
+        self.exercise_manager = ExerciseManager()  # Initialize the exercise manager
 
         # Main layout
         main_layout = QVBoxLayout()
@@ -68,49 +66,20 @@ class Exercise(QWidget):
         header.setAlignment(Qt.AlignLeft)
         main_layout.addWidget(header)
 
-        # Content Area (Dynamic)
-        self.content_stack = QStackedLayout()
-        main_layout.addLayout(self.content_stack)
-
-        # Initial Card
-        initial_card = self.exercise_list_card()
-        self.content_stack.addWidget(initial_card)
-
-        # Info Card (Placeholder)
-        self.info_card = self.content_exercise_card("", "", "", [])
-        self.content_stack.addWidget(self.info_card)
-
-        # Edit Card
-        self.edit_card = self.edit_exercise_card(False)
-        self.content_stack.addWidget(self.edit_card)
-
-        # Add Card
-        self.add_card = self.edit_exercise_card(True)
-        self.content_stack.addWidget(self.add_card)
-        self.setLayout(main_layout)
-
-    def exercise_list_card(self):
-        """Creates the main exercise list view with a scrollable layout."""
-        widget = QWidget()
-        layout = QVBoxLayout()
-
-        # Scrollable Area
+        # Scrollable Area for Exercises
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         exercise_container = QWidget()
-        self.exercise_layout = QVBoxLayout()
-        exercise_container.setLayout(self.exercise_layout)
+        self.exercise_scheme_layout = QVBoxLayout()
+        self.exercise_scheme_layout.setAlignment(Qt.AlignTop)
+        exercise_container.setLayout(self.exercise_scheme_layout)
         scroll_area.setWidget(exercise_container)
         scroll_area.setStyleSheet("border: none;")
-        layout.addWidget(scroll_area)
-
-        # Add Default "Back Day" Card
-        #self.add_exercise_card("Back Day", "Duration: 30 min    Type: Strength Training", "Description", [("Push-ups", 15), ("Pull-ups", 10), ("Sit-ups", 10), ("Looks-Maxxing", 10) , ("Mewing", 25)])
+        main_layout.addWidget(scroll_area)
 
         # Floating Add Button
         add_button = QPushButton("+")
-        add_button.setStyleSheet(
-            """
+        add_button.setStyleSheet("""
             QPushButton {
                 background-color: #2E3B55;
                 color: white;
@@ -122,29 +91,273 @@ class Exercise(QWidget):
             QPushButton:hover {
                 background-color: #405372;
             }
-            """
-        )
+        """)
         add_button.setFixedSize(50, 50)
-        add_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(3))
-        layout.addWidget(add_button, alignment=Qt.AlignRight | Qt.AlignBottom)
+        add_button.clicked.connect(self.add_new_exercise_scheme)
+        main_layout.addWidget(add_button, alignment=Qt.AlignRight | Qt.AlignBottom)
 
-        widget.setLayout(layout)
-        return widget
+        self.setLayout(main_layout)
 
-    def refresh_exercise_list(self):
-        # Clear existing widgets
-        for i in reversed(range(self.exercise_layout.count())):
-            self.exercise_layout.itemAt(i).widget().deleteLater()
-        # Re-add from manager
-        for exercise in self.manager.exercises:
-            self.add_exercise_card(exercise)
-            
-    def add_exercise_card(self, title, info, description, exercises):
-        exercise = self.manager.add_exercise(title, info, description, exercises)
-        self.update_ui()
+    def add_new_exercise_scheme(self):
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Add New Exercise Scheme')
+        layout = QVBoxLayout(dialog)
+
+        # Title, Duration, Type, Description
+        title_input = QLineEdit()
+        duration_input = QComboBox()
+        duration_input.addItems([f"{i} min" for i in range(15, 105, 5)])
+        type_input = QComboBox()
+        type_input.addItems(["Strength", "Endurance", "Speed", "Flexibility", "Balance"])
+        description_input = QTextEdit()
         
-    def content_exercise_card(self, title, info, description, list_of_exercise):
-        """Creates a detailed view for a specific exercise."""
+        layout.addWidget(QLabel("Title"))
+        layout.addWidget(title_input)
+        layout.addWidget(QLabel("Duration"))
+        layout.addWidget(duration_input)
+        layout.addWidget(QLabel("Type"))
+        layout.addWidget(type_input)
+        layout.addWidget(QLabel("Description"))
+        layout.addWidget(description_input)
+
+        added_exercises = []
+        exercise_details_layout = QVBoxLayout()
+
+        # Exercise details with Add button
+        exercise_input = QComboBox()
+        exercise_input.addItems(["Push-ups", "Sit-ups", "Squats"])
+        reps_input = QLineEdit()
+        sets_input = QLineEdit()
+        add_exercise_button = QPushButton("Add Exercise")
+
+        def add_exercise_to_list():
+            exercise = exercise_input.currentText()
+            reps = reps_input.text()
+            sets = sets_input.text()
+            if not reps.isdigit() or not sets.isdigit():
+                QMessageBox.warning(dialog, 'Invalid Input', 'Please enter valid numbers for reps and sets.')
+                return
+            if(len(added_exercises) == 0):
+                id = 0
+            else:
+                id = added_exercises[-1].id + 1
+            exercise_obj = ExerciseData(id, exercise, int(reps), int(sets))  # Create an Exercise object
+            added_exercises.append(exercise_obj)  # Append the object
+            exercise_details = QHBoxLayout()
+            exercise_label = QLabel(f"{exercise} - Reps: {reps}, Sets: {sets}")
+            delete_button = QPushButton("Delete")
+            delete_button.clicked.connect(lambda: delete_exercise(exercise_details, exercise_obj))
+
+            exercise_details.addWidget(exercise_label)
+            exercise_details.addWidget(delete_button)
+            exercise_details_layout.addLayout(exercise_details)
+
+            reps_input.clear()
+            sets_input.clear()
+
+        def delete_exercise(exercise_layout, exercise_obj):
+            # Remove the layout first
+            for i in reversed(range(exercise_layout.count())):
+                widget = exercise_layout.itemAt(i).widget()
+                if widget:
+                    widget.deleteLater()
+            exercise_layout.setParent(None)
+            exercise_layout.deleteLater()
+
+            # Now remove the corresponding exercise object from the list
+            if exercise_obj in added_exercises:
+                added_exercises.remove(exercise_obj)
+
+
+        add_exercise_button.clicked.connect(add_exercise_to_list)
+
+        layout.addLayout(exercise_details_layout)
+        exercise_entry_layout = QHBoxLayout()
+        exercise_entry_layout.addWidget(QLabel("Exercise"))
+        exercise_entry_layout.addWidget(exercise_input)
+        exercise_entry_layout.addWidget(QLabel("Reps"))
+        exercise_entry_layout.addWidget(reps_input)
+        exercise_entry_layout.addWidget(QLabel("Sets"))
+        exercise_entry_layout.addWidget(sets_input)
+        exercise_entry_layout.addWidget(add_exercise_button)
+
+        layout.addLayout(exercise_entry_layout)
+
+        # Dialog buttons
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(lambda: self.accept_dialog(dialog, title_input, duration_input, type_input, description_input, added_exercises))
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+
+    def edit_exercise_scheme(self, scheme):
+        dialog = QDialog(self)
+        dialog.setWindowTitle('Edit Exercise Scheme')
+        layout = QVBoxLayout(dialog)
+
+        # Title, Duration, Type, Description
+        title_input = QLineEdit(scheme.title)
+        duration_input = QComboBox()
+        duration_input.addItems([f"{i} min" for i in range(15, 105, 5)])
+        duration_input.setCurrentText(scheme.duration)
+        type_input = QComboBox()
+        type_input.addItems(["Strength", "Endurance", "Speed", "Flexibility", "Balance"])
+        type_input.setCurrentText(scheme.type)
+        description_input = QTextEdit(scheme.description)
+
+        layout.addWidget(QLabel("Title"))
+        layout.addWidget(title_input)
+        layout.addWidget(QLabel("Duration"))
+        layout.addWidget(duration_input)
+        layout.addWidget(QLabel("Type"))
+        layout.addWidget(type_input)
+        layout.addWidget(QLabel("Description"))
+        layout.addWidget(description_input)
+
+        # Initialize list to store exercises
+        added_exercises = [ExerciseData(ex.id, ex.exercise_name, ex.reps, ex.sets) for ex in scheme.exercise]
+        exercise_details_layout = QVBoxLayout()
+
+        # Exercise details with Add button
+        exercise_input = QComboBox()
+        exercise_input.addItems(["Push-ups", "Sit-ups", "Squats"])
+        reps_input = QLineEdit()
+        sets_input = QLineEdit()
+        add_exercise_button = QPushButton("Add Exercise")
+        
+        def update_exercise_list():
+            # Add each exercise with a delete button
+            for ex in added_exercises:
+                exercise_layout = QHBoxLayout()  # Create a horizontal layout for each exercise
+                id = ex.id
+                exercise = ex.exercise_name
+                reps = ex.reps
+                sets = ex.sets
+                exercise_obj = ExerciseData(int(id), exercise, int(reps), int(sets))
+                # Label showing the exercise details
+                exercise_label = QLabel(f"{ex.exercise_name} - Reps: {ex.reps}, Sets: {ex.sets}")
+                exercise_layout.addWidget(exercise_label)
+
+                # Delete button for removing the exercise
+                delete_button = QPushButton("Delete")
+                delete_button.clicked.connect(lambda _, l=exercise_layout, obj=exercise_obj: delete_exercise(l, obj))
+
+                exercise_layout.addWidget(delete_button)
+
+                layout.addLayout(exercise_layout)  # Add the exercise layout to the main layout
+
+
+        update_exercise_list()
+
+
+        def add_exercise_to_list():
+            exercise = exercise_input.currentText()
+            reps = reps_input.text()
+            sets = sets_input.text()
+            if not reps.isdigit() or not sets.isdigit():
+                QMessageBox.warning(dialog, 'Invalid Input', 'Please enter valid numbers for reps and sets.')
+                return
+            if(len(added_exercises) == 0):
+                id = 0
+            else:
+                id = added_exercises[-1].id + 1
+            exercise_obj = ExerciseData(id, exercise, int(reps), int(sets))  # Create an Exercise object
+            added_exercises.append(exercise_obj)
+            exercise_details = QHBoxLayout()
+            exercise_label = QLabel(f"{exercise} - Reps: {reps}, Sets: {sets}")
+            delete_button = QPushButton("Delete")
+            delete_button.clicked.connect(lambda: delete_exercise(exercise_details, exercise_obj))
+
+            exercise_details.addWidget(exercise_label)
+            exercise_details.addWidget(delete_button)
+            exercise_details_layout.addLayout(exercise_details)
+
+            reps_input.clear()
+            sets_input.clear()
+
+        def delete_exercise(layout, exercise_obj):
+            
+            for i in reversed(range(layout.count())):
+                widget = layout.itemAt(i).widget()
+                if widget:
+                    widget.deleteLater()
+            layout.setParent(None)
+            layout.deleteLater()
+
+            # Now remove the corresponding exercise object from the list
+            for i, ex in enumerate(added_exercises, start = 0):
+                if(exercise_obj.id == ex.id):
+                    added_exercises.pop(i)
+                    break
+            
+
+        add_exercise_button.clicked.connect(add_exercise_to_list)
+
+        layout.addLayout(exercise_details_layout)
+        exercise_entry_layout = QHBoxLayout()
+        exercise_entry_layout.addWidget(QLabel("Exercise"))
+        exercise_entry_layout.addWidget(exercise_input)
+        exercise_entry_layout.addWidget(QLabel("Reps"))
+        exercise_entry_layout.addWidget(reps_input)
+        exercise_entry_layout.addWidget(QLabel("Sets"))
+        exercise_entry_layout.addWidget(sets_input)
+        exercise_entry_layout.addWidget(add_exercise_button)
+        
+        layout.addLayout(exercise_entry_layout)
+
+        # Dialog buttons
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(lambda: self.accept_dialog(dialog, title_input, duration_input, type_input, description_input, added_exercises))
+        buttons.accepted.connect(lambda: self.exercise_manager.remove_exercise(scheme.id))
+        buttons.accepted.connect(lambda: self.update_ui())
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+    def accept_dialog(self, dialog, title_input, duration_input, type_input, description_input, added_exercises):
+        # Check if all required fields are filled and at least one exercise has been added
+        if (title_input.text().strip() and 
+            duration_input.currentText().strip() and 
+            type_input.currentText().strip() and 
+            description_input.toPlainText().strip() and
+            added_exercises):
+            
+            title = title_input.text().strip()
+            duration = duration_input.currentText().strip()
+            type = type_input.currentText().strip()
+            description = description_input.toPlainText().strip()
+            
+            self.save_new_exercise_scheme(title, duration, type, description, added_exercises)
+            dialog.accept()
+        else:
+            QMessageBox.warning(dialog, 'Invalid Input', 'Please fill all required fields and add at least one exercise.')
+
+    def save_new_exercise_scheme(self, title, duration, type, description, exercises):
+        # Save the new exercise scheme using your exercise manager class
+        self.exercise_manager.add_exercise(title, duration, type, description, exercises)
+        self.update_ui()  # Refresh the UI to show the new exercise
+
+
+    def update_ui(self):
+        # Clear existing widgets in the layout
+        for i in reversed(range(self.exercise_scheme_layout.count())):
+            widget_to_remove = self.exercise_scheme_layout.itemAt(i).widget()
+            self.exercise_scheme_layout.removeWidget(widget_to_remove)
+            widget_to_remove.setParent(None)
+
+        # Add updated list of exercises
+        for scheme in self.exercise_manager.exercises:
+            self.exercise_scheme_layout.addWidget(self.create_scheme_card(scheme))
+    
+    from PyQt5.QtWidgets import QPushButton
+
+    def create_scheme_card(self, scheme):
+        # Create a card frame
         card = QFrame()
         card.setStyleSheet(
             """
@@ -158,326 +371,122 @@ class Exercise(QWidget):
         card.setFixedHeight(400)  # Adjust height for better appearance
 
         layout = QVBoxLayout()
-        title_layout = QHBoxLayout()
 
-        # Title
-        self.card_title = QLabel(f"{title}")
-        self.card_title.setFont(QFont("Inter", 36, QFont.Bold))
-        self.card_title.setStyleSheet("color: #2F3A59; border: none;")
-        title_layout.addWidget(self.card_title)
-        title_layout.addStretch()
-
-        # Edit Button
-        edit_button = QPushButton("Edit Training")
-        edit_button.setFont(QFont("Inter", 12))
-        edit_button.setStyleSheet(
+        # Title, duration, and type
+        title_label = QLabel(f"{scheme.title}")
+        title_label.setFont(QFont("Arial", 16, QFont.Bold))
+        title_label.setStyleSheet(
             """
-            QPushButton {
-                background-color: #2E3B55;
-                color: white;
-                padding: 5px 20px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #405372;
+            QLabel {
+                border: none;  /* This removes the border if any exists */
             }
             """
         )
-        edit_button.setFixedWidth(150)
-        edit_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(2))
-        title_layout.addWidget(edit_button, alignment=Qt.AlignRight)
-        layout.addLayout(title_layout)
+        layout.addWidget(title_label)
 
-        # Info
-        self.card_info = QLabel(info)
-        self.card_info.setFont(QFont("Inter", 16))
-        self.card_info.setStyleSheet("color: #555555; border: none;")
-        layout.addWidget(self.card_info)
+        details_label = QLabel(f"Duration: {scheme.duration}, Type: {scheme.type}")
+        details_label.setFont(QFont("Arial", 14))
+        details_label.setStyleSheet(
+            """
+            QLabel {
+                border: none;  /* Removes border if any */
+            }
+            """
+        )
+        layout.addWidget(details_label)
 
         # Description
-        self.card_description = QLabel(description)
-        self.card_description.setFont(QFont("Inter", 16))
-        self.card_description.setStyleSheet("color: #777777; border: none;")
-        self.card_description.setWordWrap(True)
-        layout.addWidget(self.card_description)
-
-        # Scrollable Exercise List
-        scroll_area = QScrollArea()
-        scroll_area.setStyleSheet("border: none;")
-        scroll_area.setWidgetResizable(True)
-
-        exercise_list_container = QWidget()
-        self.exercise_list_layout = QVBoxLayout()
-        exercise_list_container.setLayout(self.exercise_list_layout)
-        scroll_area.setWidget(exercise_list_container)
-
-        layout.addWidget(scroll_area)
-
-        # Back Button
-        back_button = QPushButton("Back")
-        back_button.setFont(QFont("Inter", 12))
-        back_button.setStyleSheet(
+        description_label = QLabel(f"Description: {scheme.description}")
+        description_label.setFont(QFont("Arial", 12))
+        description_label.setWordWrap(True)
+        description_label.setStyleSheet(
             """
+            QLabel {
+                border: none;  /* Removes border if any */
+            }
+            """
+        )
+        layout.addWidget(description_label)
+
+        # List of exercises
+        exercises_label = QLabel("Exercises:")
+        exercises_label.setFont(QFont("Arial", 14, QFont.Bold))
+        exercises_label.setStyleSheet(
+            """
+            QLabel {
+                border: none;  /* Removes border if any */
+            }
+            """
+        )
+        layout.addWidget(exercises_label)
+
+        for ex in scheme.exercise:
+            exercise_label = QLabel(f"{ex.exercise_name} - Reps: {ex.reps}, Sets: {ex.sets}")
+            exercise_label.setFont(QFont("Arial", 12))
+            exercise_label.setStyleSheet(
+                """
+                QLabel {
+                    border: none;  /* Removes border if any */
+                }
+                """
+            )
+            layout.addWidget(exercise_label)
+
+            # Add a spacer item for spacing
+            spacer = QSpacerItem(0, 2, QSizePolicy.Minimum, QSizePolicy.Fixed)  # 10px vertical spacing
+            layout.addItem(spacer)
+
+        # Add Edit and Delete buttons
+        button_layout = QHBoxLayout()
+        edit_button = QPushButton("Edit")
+        delete_button = QPushButton("Delete")
+
+        edit_button.setFont(QFont("Inter", 12))
+        delete_button.setFont(QFont("Inter", 12))
+
+        edit_button.setStyleSheet("""
             QPushButton {
                 background-color: #2E3B55;
                 color: white;
-                padding: 5px 20px;
+                padding: 5px 10px;
                 border-radius: 5px;
             }
             QPushButton:hover {
                 background-color: #405372;
             }
-            """
-        )
-        back_button.setFixedWidth(150)
-        back_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(0))
-        layout.addWidget(back_button, alignment=Qt.AlignCenter)
+        """)
 
-        card.setLayout(layout)
-        return card
-
-    def update_content_card(self, title, info, description, exercises):
-        """Updates the detailed content exercise card."""
-        self.card_title.setText(title)
-        self.card_info.setText(info)
-        self.card_description.setText(description)
-
-        # Update exercise list
-        for i in reversed(range(self.exercise_list_layout.count())):
-            self.exercise_list_layout.itemAt(i).widget().deleteLater()
-
-        for exercise, reps in exercises:
-            exercise_label = QLabel(f"{exercise} : {reps} reps")
-            exercise_label.setFont(QFont("Inter", 14))
-            exercise_label.setStyleSheet("color: #555555; border: none;")
-            self.exercise_list_layout.addWidget(exercise_label)
-
-    def add_exercise_card(self, title, info, description, exercises):
-        """Adds a new exercise card to the scrollable layout."""
-        card_data = (title, info, description, exercises)
-        self.exercise_data.append((card_data))
-
-        card = QFrame()
-        card.setStyleSheet(
-            """
-            QFrame {
-                background-color: white;
-                border-radius: 30px;
-                border: 1px solid #DDDDDD;
-            }
-            """
-        )
-        card.setFixedHeight(400)
-
-        layout = QVBoxLayout()
-        title_layout = QHBoxLayout()
-
-        # Title
-        card_title = QLabel(f"{title}")
-        card_title.setFont(QFont("Inter", 36, QFont.Bold))
-        card_title.setStyleSheet("color: #2F3A59; border: none;")
-        title_layout.addWidget(card_title)
-        title_layout.addStretch()
-
-        # Delete Button
-        delete_button = QPushButton("Delete Training")
-        delete_button.setFont(QFont("Inter", 12))
-        delete_button.setStyleSheet(
-            """
+        delete_button.setStyleSheet("""
             QPushButton {
                 background-color: red;
                 color: white;
-                padding: 5px 25px;
+                padding: 5px 10px;
                 border-radius: 5px;
             }
             QPushButton:hover {
                 background-color: #8B0000;
             }
-            """
-        )
-        delete_button.setFixedWidth(200)
-        delete_button.clicked.connect(lambda: self.confirm_deletion(card, card_data))
-        title_layout.addWidget(delete_button, alignment=Qt.AlignRight)
+        """)
 
-        layout.addLayout(title_layout)
+        # Connect buttons to their functionalities
+        delete_button.clicked.connect(lambda: self.confirm_deletion(scheme))
+        edit_button.clicked.connect(lambda: self.edit_exercise_scheme(scheme))
 
-        # Info
-        card_info = QLabel(f"{info}")
-        card_info.setFont(QFont("Inter", 16))
-        card_info.setStyleSheet("color: #555555; border: none;")
-        layout.addWidget(card_info)
-
-        # Description
-        card_description = QLabel(f"{description}")
-        card_description.setFont(QFont("Inter", 16))
-        card_description.setStyleSheet("color: #555555; border: none;")
-        layout.addWidget(card_description)
-
-        # Dropdown Button
-        info_button = QPushButton("Info Training")
-        info_button.setFont(QFont("Inter", 12))
-        info_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2E3B55;
-                color: white;
-                padding: 5px 20px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #405372;
-            }
-            """
-        )
-        info_button.setFixedWidth(200)
-        info_button.setFixedHeight(30)
-        info_button.clicked.connect(lambda: self.show_exercise_details(title, info, description, exercises))
-        layout.addWidget(info_button, alignment=Qt.AlignCenter)
-
-        card.setLayout(layout)
-        self.exercise_layout.addWidget(card)
-    
-    def edit_exercise_card(self, add):
-        """Creates the edit exercise card."""
-        card = QWidget()
-        layout = QVBoxLayout()
-
-        # Title Input
-        self.edit_title = QLineEdit()
-        self.edit_title.setPlaceholderText("Title")
-        self.edit_title.setFont(QFont("Inter", 16))
-        self.edit_title.setStyleSheet("padding: 10px; border: 1px solid #DDDDDD; border-radius: 5px;")
-        layout.addWidget(self.edit_title)
-
-        # Duration Dropdown
-        self.edit_duration = QComboBox()
-        self.edit_duration.addItems([f"{i} min" for i in range(15, 65, 5)])
-        self.edit_duration.setFont(QFont("Inter", 16))
-        self.edit_duration.setStyleSheet("padding: 10px; border: 1px solid #DDDDDD; border-radius: 5px;")
-        layout.addWidget(self.edit_duration)
-
-        # Type Dropdown
-        self.edit_type = QComboBox()
-        exercise_types = ["Strength", "Endurance", "Speed", "Flexibility", "Balance"]
-        self.edit_type.addItems(exercise_types)
-        self.edit_type.setFont(QFont("Inter", 16))
-        self.edit_type.setStyleSheet("padding: 10px; border: 1px solid #DDDDDD; border-radius: 5px;")
-        layout.addWidget(self.edit_type)
-
-        # Description Input
-        self.edit_description = QTextEdit()
-        self.edit_description.setPlaceholderText("Description")
-        self.edit_description.setFont(QFont("Inter", 16))
-        self.edit_description.setStyleSheet("padding: 10px; border: 1px solid #DDDDDD; border-radius: 5px;")
-        layout.addWidget(self.edit_description)
-
-        # Exercise Dropdown
-        # Save Button
-        save_button = QPushButton("Save")
-        save_button.setFont(QFont("Inter", 12))
-        save_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #2E3B55;
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #405372;
-            }
-            """
-        )
-        if(add):
-            save_button.clicked.connect(self.confirm_add)
-        else:
-            save_button.clicked.connect(self.confirm_save)
-        save_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(1))
-        layout.addWidget(save_button, alignment=Qt.AlignRight)
-
-        # Back Button
-        back_button = QPushButton("Cancel")
-        back_button.setFont(QFont("Inter", 12))
-        back_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #DDDDDD;
-                color: black;
-                padding: 10px 20px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #CCCCCC;
-            }
-            """
-        )
-        back_button.clicked.connect(lambda: self.content_stack.setCurrentIndex(1))
-        layout.addWidget(back_button, alignment=Qt.AlignLeft)
-
+        button_layout.addWidget(edit_button)
+        button_layout.addWidget(delete_button)
+        layout.addLayout(button_layout)
+        
         card.setLayout(layout)
         return card
 
-    def switch_to_edit_card(self, title, info, description):
-        """Populates the edit card with current details and switches to it."""
-        self.edit_title.setText(title)
-        if info:
-            duration, exercise_type = info.split("    Type: ")
-            self.edit_duration.setCurrentText(duration.replace("Duration: ", ""))
-            self.edit_type.setCurrentText(exercise_type)
-        self.edit_description.setText(description)
-        self.content_stack.setCurrentIndex(2)
-
-    def save_exercise_details(self):
-        """Saves the edited details back to the exercise and switches to the info card."""
-        new_title = self.edit_title.text()
-        new_duration = self.edit_duration.currentText()
-        new_type = self.edit_type.currentText()
-        new_info = f"Duration: {new_duration}    Type: {new_type}"
-        new_description = self.edit_description.toPlainText()
-
-        self.card_title.setText(new_title)
-        self.card_info.setText(new_info)
-        self.card_description.setText(new_description)
-        
-    def show_exercise_details(self, title, info, description, exercises):
-        """Shows the details of a specific exercise card."""
-        self.update_content_card(title, info, description, exercises)
-        self.content_stack.setCurrentIndex(1)
-
-    def add_new_exercise_scheme(self, title, info, description, exercises ):
-        """Adds a dynamically created exercise card."""
-        count = self.exercise_layout.count() + 1
-        self.add_exercise_card(f"{title}", "Duration: -    Type: -", "-", [("-", 0)])
-
-    #def add_new_exercise(self):
-
-
-    def confirm_deletion(self, card, card_data):
-        reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete this training?',
+    def confirm_deletion(self, scheme):
+        reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete this scheme?',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
         if reply == QMessageBox.Yes:
-            self.exercise_layout.removeWidget(card)
-            card.deleteLater()
-            if card_data in self.exercise_data:
-                self.exercise_data.remove(card_data)
+            self.exercise_manager.remove_exercise(scheme.id)
+            self.update_ui()
 
-    def confirm_save(self):
-        reply = QMessageBox.question(self, 'Confirm Save', 'Are you sure you want to save this?',
-                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
-        if reply == QMessageBox.Yes:
-            self.save_exercise_details
-
-    def confirm_add(self):
-        reply = QMessageBox.question(self, 'Confirm Add', 'Are you sure you want to add this?',
-                                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            self.save_exercise_details
-            self.add_new_exercise_scheme
-               
-            
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
