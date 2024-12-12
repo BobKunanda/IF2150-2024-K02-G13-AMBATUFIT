@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QScrollArea, 
-QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox)
+QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QStackedWidget)
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
@@ -137,6 +137,9 @@ class ActivityUI(QWidget):
         #Initialize
         self.header = QLabel("Aktivitas Fisik")
         self.layout = QVBoxLayout(self)
+        self.row1 = QHBoxLayout(self)
+        self.add_button = QPushButton("Tambah Log Baru")
+        self.add_button.setStyleSheet("font-size:30px;min-width: 80px;min-height: 60px;")
         self.log_area = QScrollArea()
         self.log_area.setWidgetResizable(True)
         self.box_container = QWidget()
@@ -147,14 +150,17 @@ class ActivityUI(QWidget):
         #Begin modifying
         self.header.setAlignment(Qt.AlignHCenter)
         self.header.setFont(QFont("Arial", 30))
+        #self.row1.addStretch()
+        self.row1.addWidget(self.add_button)
 
         #Begin Layout
         self.layout.addWidget(self.header)
+        self.layout.addLayout(self.row1)
         self.layout.addWidget(self.log_area)
         for i in range(10):
             self.log = Log(self.box_layout)
             self.box_layout.addWidget(self.log)
-        
+
 
 if __name__ == "__main__":
     app = QApplication([])
