@@ -6,6 +6,9 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont, QIcon
 
+from src.backend.controllers.SkemaController import ListSkemaController, SkemaController, ListDetailController, DetailSkemaController
+from src.backend.controllers.LatihanController import LatihanController, ListLatihanController
+
 class ExerciseData:
     def __init__(self, id, exercise_name, reps, sets):
         self.id = id
@@ -23,18 +26,29 @@ class ExerciseSchemeData:
         self.exercise = exercise
 
 class ExerciseManager:
-    def __init__(self):
-        self.exercises = []
-        self.next_id = 1  # Simple auto-increment mechanism for IDs
+    def __init__(self,db_filename,skema_data = None, exercise_data = None):
+        self.db_filename = db_filename
+        self.skema_controller = SkemaController(db_filename)
+
 
     def add_exercise(self, title, duration, type, description, exercises):
-        new_exercise = ExerciseSchemeData(self.next_id, title, duration, type, description, exercises)
-        self.exercises.append(new_exercise)
-        self.next_id += 1
-        return new_exercise
+        skema_dict = {
+            'nama': title,
+            'deskripsi': description,
+            'tipe': type,
+            'durasi' :duration.split()[0]
+        }
+        self.skema_controller.create_skema_data(skema_dict)
+        idSkema = self.skema_controller.get_skema_data()['id']
+        for dict in exercises:
+            dict['id_skema'] = idSkema
+            detailSkemaController = DetailSkemaController(self.db_filename)
+            detailSkemaController.createDetailLatihan(dict)
 
     def remove_exercise(self, id):
-        self.exercises = [ex for ex in self.exercises if ex.id != id]
+        skema_controller = SkemaController(self.db_filename,id)
+        skema_controller.delete_skema_data()
+        
 
     def update_exercise(self, id, title, duration, type, description, exercises):
         for ex in self.exercises:
@@ -48,13 +62,19 @@ class ExerciseManager:
         return None
 
 class Exercise(QWidget):
-    def __init__(self):
+    def __init__(self, db_filename):
         super().__init__()
+
+        self.db_filename = db_filename
 
         self.setWindowTitle("Ambatufit")
         self.setWindowIcon(QIcon("src/assets/icons/logo.jpg"))
         self.setGeometry(100, 100, 800, 600)
-        self.exercise_manager = ExerciseManager()  # Initialize the exercise manager
+        self.exercise_manager = ExerciseManager(db_filename)  # Initialize the exercise manager
+        self.list_skema_controller = ListSkemaController(db_filename)
+        self.list_skema_data = self.list_skema_controller.get_list_skema()
+        # print(self.list_skema_data)
+        
 
         # Main layout
         main_layout = QVBoxLayout()
@@ -92,25 +112,31 @@ class Exercise(QWidget):
                 background-color: #405372;
             }
         """)
+
+        # Awal-awal kita inialisasi card dari database
+        for scheme in self.list_skema_data:
+            self.exercise_scheme_layout.addWidget(self.create_scheme_card(scheme['id']))
+
         add_button.setFixedSize(50, 50)
         add_button.clicked.connect(self.add_new_exercise_scheme)
         main_layout.addWidget(add_button, alignment=Qt.AlignRight | Qt.AlignBottom)
 
         self.setLayout(main_layout)
 
-    def add_new_exercise_scheme(self):
+    def add_new_exercise_scheme(self,scheme = None):
+        
         dialog = QDialog(self)
         dialog.setWindowTitle('Add New Exercise Scheme')
         layout = QVBoxLayout(dialog)
 
-        # Title, Duration, Type, Description
+
         title_input = QLineEdit()
         duration_input = QComboBox()
         duration_input.addItems([f"{i} min" for i in range(15, 105, 5)])
         type_input = QComboBox()
         type_input.addItems(["Strength", "Endurance", "Speed", "Flexibility", "Balance"])
         description_input = QTextEdit()
-        
+
         layout.addWidget(QLabel("Title"))
         layout.addWidget(title_input)
         layout.addWidget(QLabel("Duration"))
@@ -119,13 +145,20 @@ class Exercise(QWidget):
         layout.addWidget(type_input)
         layout.addWidget(QLabel("Description"))
         layout.addWidget(description_input)
+            
 
         added_exercises = []
         exercise_details_layout = QVBoxLayout()
 
         # Exercise details with Add button
         exercise_input = QComboBox()
-        exercise_input.addItems(["Push-ups", "Sit-ups", "Squats"])
+        list_latihan = []
+        list_latihan_controller = ListLatihanController(self.db_filename)
+
+        for dict in list_latihan_controller.get_list_latihan():
+            list_latihan.append(dict['nama'])
+
+        exercise_input.addItems(list_latihan)
         reps_input = QLineEdit()
         sets_input = QLineEdit()
         add_exercise_button = QPushButton("Add Exercise")
@@ -137,16 +170,23 @@ class Exercise(QWidget):
             if not reps.isdigit() or not sets.isdigit():
                 QMessageBox.warning(dialog, 'Invalid Input', 'Please enter valid numbers for reps and sets.')
                 return
-            if(len(added_exercises) == 0):
-                id = 0
-            else:
-                id = added_exercises[-1].id + 1
-            exercise_obj = ExerciseData(id, exercise, int(reps), int(sets))  # Create an Exercise object
-            added_exercises.append(exercise_obj)  # Append the object
+            
+            id_latihan = 0;
+
+            for latihan in list_latihan_controller.get_list_latihan():
+                if (exercise == latihan['nama']):
+                    id_latihan = latihan['id']
+
+            detailLatihan = {}
+            detailLatihan['id_latihan'] = id_latihan
+            detailLatihan['reps'] = int(reps)
+            detailLatihan['sets'] = int(sets)
+
+            added_exercises.append(detailLatihan) 
             exercise_details = QHBoxLayout()
             exercise_label = QLabel(f"{exercise} - Reps: {reps}, Sets: {sets}")
             delete_button = QPushButton("Delete")
-            delete_button.clicked.connect(lambda: delete_exercise(exercise_details, exercise_obj))
+            delete_button.clicked.connect(lambda: delete_exercise(exercise_details, detailLatihan))
 
             exercise_details.addWidget(exercise_label)
             exercise_details.addWidget(delete_button)
@@ -155,7 +195,7 @@ class Exercise(QWidget):
             reps_input.clear()
             sets_input.clear()
 
-        def delete_exercise(exercise_layout, exercise_obj):
+        def delete_exercise(exercise_layout, detail):
             # Remove the layout first
             for i in reversed(range(exercise_layout.count())):
                 widget = exercise_layout.itemAt(i).widget()
@@ -165,8 +205,8 @@ class Exercise(QWidget):
             exercise_layout.deleteLater()
 
             # Now remove the corresponding exercise object from the list
-            if exercise_obj in added_exercises:
-                added_exercises.remove(exercise_obj)
+            if detail in added_exercises:
+                added_exercises.remove(detail)
 
 
         add_exercise_button.clicked.connect(add_exercise_to_list)
@@ -193,20 +233,20 @@ class Exercise(QWidget):
         dialog.exec_()
 
 
-    def edit_exercise_scheme(self, scheme):
+    def edit_exercise_scheme(self, data_skema, list_detail):
         dialog = QDialog(self)
         dialog.setWindowTitle('Edit Exercise Scheme')
         layout = QVBoxLayout(dialog)
 
         # Title, Duration, Type, Description
-        title_input = QLineEdit(scheme.title)
+        title_input = QLineEdit(data_skema['nama'])
         duration_input = QComboBox()
         duration_input.addItems([f"{i} min" for i in range(15, 105, 5)])
-        duration_input.setCurrentText(scheme.duration)
+        duration_input.setCurrentText(str(data_skema['durasi'])+" min")
         type_input = QComboBox()
         type_input.addItems(["Strength", "Endurance", "Speed", "Flexibility", "Balance"])
-        type_input.setCurrentText(scheme.type)
-        description_input = QTextEdit(scheme.description)
+        type_input.setCurrentText(data_skema['tipe'])
+        description_input = QTextEdit(data_skema['deskripsi'])
 
         layout.addWidget(QLabel("Title"))
         layout.addWidget(title_input)
@@ -218,32 +258,49 @@ class Exercise(QWidget):
         layout.addWidget(description_input)
 
         # Initialize list to store exercises
-        added_exercises = [ExerciseData(ex.id, ex.exercise_name, ex.reps, ex.sets) for ex in scheme.exercise]
+        
         exercise_details_layout = QVBoxLayout()
 
         # Exercise details with Add button
         exercise_input = QComboBox()
-        exercise_input.addItems(["Push-ups", "Sit-ups", "Squats"])
+
+        new_exercises = []
+        remove_exercise = []
+
+        list_latihan_controller = ListLatihanController(self.db_filename)
+        list_latihan = []
+        for dict in list_latihan_controller.get_list_latihan():
+            list_latihan.append(dict['nama'])
+        exercise_input.addItems(list_latihan)
+
         reps_input = QLineEdit()
         sets_input = QLineEdit()
         add_exercise_button = QPushButton("Add Exercise")
         
         def update_exercise_list():
             # Add each exercise with a delete button
-            for ex in added_exercises:
+            for dict in list_detail :
                 exercise_layout = QHBoxLayout()  # Create a horizontal layout for each exercise
-                id = ex.id
-                exercise = ex.exercise_name
-                reps = ex.reps
-                sets = ex.sets
-                exercise_obj = ExerciseData(int(id), exercise, int(reps), int(sets))
+                id_skema = dict['id_skema']
+                id_urut = dict['id_urut']
+
+                exercise = None
+
+                for latihan in list_latihan_controller.get_list_latihan(): 
+                    if (latihan['id'] == dict['id_latihan']):
+                        exercise = latihan['nama']
+
+                reps = dict['reps']
+                sets = dict['sets']
+                
                 # Label showing the exercise details
-                exercise_label = QLabel(f"{ex.exercise_name} - Reps: {ex.reps}, Sets: {ex.sets}")
+                exercise_label = QLabel(f"{exercise} - Reps: {reps}, Sets: {sets}")
                 exercise_layout.addWidget(exercise_label)
 
-                # Delete button for removing the exercise
+
+                # Delete button for removing the exercise   
                 delete_button = QPushButton("Delete")
-                delete_button.clicked.connect(lambda _, l=exercise_layout, obj=exercise_obj: delete_exercise(l, obj))
+                delete_button.clicked.connect(lambda _, l=exercise_layout, id_urut = id_urut: delete_exercise(l, id_urut))
 
                 exercise_layout.addWidget(delete_button)
 
@@ -260,16 +317,27 @@ class Exercise(QWidget):
             if not reps.isdigit() or not sets.isdigit():
                 QMessageBox.warning(dialog, 'Invalid Input', 'Please enter valid numbers for reps and sets.')
                 return
-            if(len(added_exercises) == 0):
-                id = 0
-            else:
-                id = added_exercises[-1].id + 1
-            exercise_obj = ExerciseData(id, exercise, int(reps), int(sets))  # Create an Exercise object
-            added_exercises.append(exercise_obj)
+            
+            id_latihan = 0;
+
+            for latihan in list_latihan_controller.get_list_latihan():
+                if (exercise == latihan['nama']):
+                    id_latihan = latihan['id']
+
+            detailLatihan = {}
+            id_urut = max(item['id_urut'] for item in list_detail) +1
+            detailLatihan['id_urut'] = id_urut
+            detailLatihan['id_skema'] = data_skema['id'] 
+            detailLatihan['id_latihan'] = id_latihan
+            detailLatihan['reps'] = int(reps)
+            detailLatihan['sets'] = int(sets)
+
+            new_exercises.append(detailLatihan) 
+
             exercise_details = QHBoxLayout()
             exercise_label = QLabel(f"{exercise} - Reps: {reps}, Sets: {sets}")
             delete_button = QPushButton("Delete")
-            delete_button.clicked.connect(lambda: delete_exercise(exercise_details, exercise_obj))
+            delete_button.clicked.connect(lambda: delete_exercise(exercise_details,id_urut))
 
             exercise_details.addWidget(exercise_label)
             exercise_details.addWidget(delete_button)
@@ -278,7 +346,7 @@ class Exercise(QWidget):
             reps_input.clear()
             sets_input.clear()
 
-        def delete_exercise(layout, exercise_obj):
+        def delete_exercise(layout, id_urut):
             
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
@@ -288,11 +356,7 @@ class Exercise(QWidget):
             layout.deleteLater()
 
             # Now remove the corresponding exercise object from the list
-            for i, ex in enumerate(added_exercises, start = 0):
-                if(exercise_obj.id == ex.id):
-                    added_exercises.pop(i)
-                    break
-            
+            remove_exercise.append(id_urut)
 
         add_exercise_button.clicked.connect(add_exercise_to_list)
 
@@ -309,9 +373,57 @@ class Exercise(QWidget):
         layout.addLayout(exercise_entry_layout)
 
         # Dialog buttons
+
+        def accept_edit_dialog(dialog, title_input, duration_input, type_input, description_input, new_exercises,remove_exercise, id_skema):
+            # Check if all required fields are filled and at least one exercise has been added
+            if (title_input.text().strip() and 
+                duration_input.currentText().strip() and 
+                type_input.currentText().strip() and 
+                description_input.toPlainText().strip() and
+                len(list_detail) + len(new_exercises) > len(remove_exercise)):
+                
+                title_input = title_input.text().strip()
+                duration_input = duration_input.currentText().strip()
+                type_input = type_input.currentText().strip()
+                description_input = description_input.toPlainText().strip()
+
+                dict = {
+                    'id' : id_skema,
+                    'nama': title_input,
+                    'deskripsi': description_input,
+                    'tipe': type_input,
+                    'durasi': duration_input.split()[0]
+                }
+
+                save_new_edit_exercise_scheme(dict ,new_exercises,remove_exercise,id_skema)
+                dialog.accept()
+            else:
+                QMessageBox.warning(dialog, 'Invalid Input', 'Please fill all required fields and add at least one exercise.')
+
+        def save_new_edit_exercise_scheme(dict, new_exercises,remove_exercise, id_skema):
+            # Save the new exercise scheme using your exercise manager class
+            skema_controller = SkemaController(self.db_filename,id_skema)
+            skema_controller.update_skema_data(dict)
+            
+
+            for dict in new_exercises:
+                if dict['id_urut'] in remove_exercise:
+                    remove_exercise.remove(dict['id_urut'])
+                    continue
+                
+                detail_controller = DetailSkemaController(self.db_filename)
+                print(1)
+                detail_controller.createDetailLatihan(dict)
+
+
+            for id_urut in remove_exercise:
+                detail_controller = DetailSkemaController(self.db_filename,id_urut,id_skema)
+                detail_controller.deleteDetailLatihan()
+
+            self.update_ui()  # Refresh the UI to show the new exercise
+
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttons.accepted.connect(lambda: self.accept_dialog(dialog, title_input, duration_input, type_input, description_input, added_exercises))
-        buttons.accepted.connect(lambda: self.exercise_manager.remove_exercise(scheme.id))
+        buttons.accepted.connect(lambda: accept_edit_dialog(dialog, title_input, duration_input, type_input, description_input, new_exercises, remove_exercise, data_skema['id']))
         buttons.accepted.connect(lambda: self.update_ui())
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
@@ -319,8 +431,9 @@ class Exercise(QWidget):
         dialog.setLayout(layout)
         dialog.exec_()
 
+
     def accept_dialog(self, dialog, title_input, duration_input, type_input, description_input, added_exercises):
-        # Check if all required fields are filled and at least one exercise has been added
+
         if (title_input.text().strip() and 
             duration_input.currentText().strip() and 
             type_input.currentText().strip() and 
@@ -344,19 +457,33 @@ class Exercise(QWidget):
 
 
     def update_ui(self):
-        # Clear existing widgets in the layout
+        #Clear existing widgets in the layout
         for i in reversed(range(self.exercise_scheme_layout.count())):
-            widget_to_remove = self.exercise_scheme_layout.itemAt(i).widget()
-            self.exercise_scheme_layout.removeWidget(widget_to_remove)
-            widget_to_remove.setParent(None)
+            item = self.exercise_scheme_layout.itemAt(i)
+            if item.widget():  # Jika item adalah widget
+                widget_to_remove = item.widget()
+                self.exercise_scheme_layout.removeWidget(widget_to_remove)
+                widget_to_remove.setParent(None)
+            else:  # Jika item bukan widget (misalnya spacer)
+                self.exercise_scheme_layout.removeItem(item)
 
-        # Add updated list of exercises
-        for scheme in self.exercise_manager.exercises:
-            self.exercise_scheme_layout.addWidget(self.create_scheme_card(scheme))
+        self.list_skema_data = self.list_skema_controller.get_list_skema()
+
+        for scheme in self.list_skema_data:
+            self.exercise_scheme_layout.addWidget(self.create_scheme_card(scheme['id']))
     
     from PyQt5.QtWidgets import QPushButton
 
-    def create_scheme_card(self, scheme):
+    def create_scheme_card(self, schemeId):
+        skema_controller = SkemaController(self.db_filename,schemeId)
+        data_skema = skema_controller.get_skema_data()
+
+        list_detail_controller = ListDetailController(schemeId,self.db_filename)
+        list_detail = list_detail_controller.get_list_detail()
+        
+        list_latihan_controller = ListLatihanController(self.db_filename)
+        list_latihan = list_latihan_controller.get_list_latihan()
+
         # Create a card frame
         card = QFrame()
         card.setStyleSheet(
@@ -373,7 +500,7 @@ class Exercise(QWidget):
         layout = QVBoxLayout()
 
         # Title, duration, and type
-        title_label = QLabel(f"{scheme.title}")
+        title_label = QLabel(f"{data_skema['nama']}")
         title_label.setFont(QFont("Arial", 16, QFont.Bold))
         title_label.setStyleSheet(
             """
@@ -384,7 +511,7 @@ class Exercise(QWidget):
         )
         layout.addWidget(title_label)
 
-        details_label = QLabel(f"Duration: {scheme.duration}, Type: {scheme.type}")
+        details_label = QLabel(f"Duration: {str(data_skema['durasi'])} min, Type: {data_skema['tipe']}")
         details_label.setFont(QFont("Arial", 14))
         details_label.setStyleSheet(
             """
@@ -396,7 +523,7 @@ class Exercise(QWidget):
         layout.addWidget(details_label)
 
         # Description
-        description_label = QLabel(f"Description: {scheme.description}")
+        description_label = QLabel(f"Description: {data_skema['deskripsi']}")
         description_label.setFont(QFont("Arial", 12))
         description_label.setWordWrap(True)
         description_label.setStyleSheet(
@@ -420,8 +547,15 @@ class Exercise(QWidget):
         )
         layout.addWidget(exercises_label)
 
-        for ex in scheme.exercise:
-            exercise_label = QLabel(f"{ex.exercise_name} - Reps: {ex.reps}, Sets: {ex.sets}")
+        for ex in list_detail:
+
+            nama = ""
+            for latihan in list_latihan:
+                if (ex['id_latihan'] == latihan['id']):
+                    nama = latihan['nama']
+                    break
+    
+            exercise_label = QLabel(f"{nama} - Reps: {ex['reps']}, Sets: {ex['sets']}")
             exercise_label.setFont(QFont("Arial", 12))
             exercise_label.setStyleSheet(
                 """
@@ -469,8 +603,8 @@ class Exercise(QWidget):
         """)
 
         # Connect buttons to their functionalities
-        delete_button.clicked.connect(lambda: self.confirm_deletion(scheme))
-        edit_button.clicked.connect(lambda: self.edit_exercise_scheme(scheme))
+        delete_button.clicked.connect(lambda: self.confirm_deletion(data_skema['id']))
+        edit_button.clicked.connect(lambda: self.edit_exercise_scheme(data_skema,list_detail))
 
         button_layout.addWidget(edit_button)
         button_layout.addWidget(delete_button)
@@ -479,11 +613,13 @@ class Exercise(QWidget):
         card.setLayout(layout)
         return card
 
-    def confirm_deletion(self, scheme):
+    def confirm_deletion(self, schemeId):
         reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete this scheme?',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
-            self.exercise_manager.remove_exercise(scheme.id)
+            self.exercise_manager.remove_exercise(schemeId)
+            self.list_skema_data = self.list_skema_controller.get_list_skema()
+            print(self.list_skema_data)
             self.update_ui()
 
 

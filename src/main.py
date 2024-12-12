@@ -25,6 +25,7 @@ class MainWindow(QMainWindow):
 
         # Ini bakalan diisi ntar
         db_filename = os.path.join(os.path.dirname(__file__), 'data', 'data.db')
+
         profile = Profile(db_filename)
         self.pageManager.addWidget(profile)
 
@@ -32,7 +33,7 @@ class MainWindow(QMainWindow):
         self.pageManager.addWidget(home)
         self.pageManager.setCurrentWidget(home) # --> Defaulnya bakal nampilin home dulu
         
-        excercise = Exercise()
+        excercise = Exercise(db_filename)
         self.pageManager.addWidget(excercise)
 
         activity = QLabel("activity")
