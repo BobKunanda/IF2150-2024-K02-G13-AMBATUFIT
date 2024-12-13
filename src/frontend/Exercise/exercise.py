@@ -73,7 +73,6 @@ class Exercise(QWidget):
         self.exercise_manager = ExerciseManager(db_filename)  # Initialize the exercise manager
         self.list_skema_controller = ListSkemaController(db_filename)
         self.list_skema_data = self.list_skema_controller.get_list_skema()
-        # print(self.list_skema_data)
         
 
         # Main layout
@@ -412,7 +411,6 @@ class Exercise(QWidget):
                     continue
                 
                 detail_controller = DetailSkemaController(self.db_filename)
-                print(1)
                 detail_controller.createDetailLatihan(dict)
 
 
@@ -619,7 +617,6 @@ class Exercise(QWidget):
         if reply == QMessageBox.Yes:
             self.exercise_manager.remove_exercise(schemeId)
             self.list_skema_data = self.list_skema_controller.get_list_skema()
-            print(self.list_skema_data)
             self.update_ui()
 
 
