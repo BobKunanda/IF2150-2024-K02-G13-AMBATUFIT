@@ -1,8 +1,8 @@
 import sys
 import os
 from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QScrollArea, 
-QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QStackedWidget, QStackedLayout)
-from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
+QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QComboBox, QLineEdit, QStackedLayout, QDateEdit, QSizePolicy)
+from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer, QDate
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
 class Log(QFrame):
@@ -19,13 +19,15 @@ class Log(QFrame):
         # Add a label inside the box
         self.box_area = QHBoxLayout(self)
         self.text_area = QVBoxLayout()
-        self.text1 = QLabel(f"Date : ")
-        self.text2 = QLabel("Calories burned : ")
-        self.text3 = QLabel("Steps : ")
+        self.text1 = QLabel("Date : ")
+        self.text2 = QLabel("Activity: ")
+        self.text3 = QLabel("Achieved : ")
+        self.text4 = QLabel("Calories burned : ")
 
         self.text1.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
         self.text2.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
         self.text3.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
+        self.text4.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
 
         self.remove_button = QPushButton("X")
         self.remove_button.setFixedSize(50, 30)  # Set button size
@@ -47,6 +49,7 @@ class Log(QFrame):
         self.text_area.addWidget(self.text1)
         self.text_area.addWidget(self.text2)
         self.text_area.addWidget(self.text3)
+        self.text_area.addWidget(self.text4)
         self.box_area.addLayout(self.text_area)
         self.box_area.addLayout(self.row0)
     
@@ -127,15 +130,81 @@ class Log(QFrame):
             self.deleteLater()  # Deletes the widget
 
 class ActivityForm(QWidget):
-    def __init__(self, switch_to_form):
+    def __init__(self, switch_to_ui):
         super().__init__()
-        layout = QVBoxLayout()
-        label = QLabel("This is Form")
-        button = QPushButton("Go to UI")
-        button.clicked.connect(switch_to_form)
-        layout.addWidget(label)
-        layout.addWidget(button)
-        self.setLayout(layout)
+        self.layout = QVBoxLayout(self)
+        subheader = QLabel("Form Log Aktivitas Fisik Baru")
+        subheader.setStyleSheet("""
+        font-size:50px;
+        font-family:Arial;
+        border: 2px solid black;
+        """)
+        policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        subheader.setSizePolicy(policy)
+
+        self.form_box = QFrame()
+        self.form_box.setStyleSheet("""
+            border: 2px solid black;
+            background-color: #d0d0d0;
+        """)
+        self.form_box.setFixedSize(2000, 600)
+        self.form_layout = QVBoxLayout(self.form_box)
+
+        date_form = QDateEdit()
+        date_form.setDate(QDate.currentDate())
+        activity_form = QComboBox()
+        achievement_form = QLineEdit()
+        achievement_form.setFixedWidth(200)
+        ach_validator = QIntValidator(0, 1000)
+        achievement_form.setValidator(ach_validator)
+        calorie_form = QLineEdit()
+        calorie_form.setFixedWidth(200)
+        cal_validator = QIntValidator(0, 3000)
+        calorie_form.setValidator(cal_validator)
+
+        row1 = QHBoxLayout()
+        row2 = QHBoxLayout()
+        row3 = QHBoxLayout()
+        row4 = QHBoxLayout()
+
+        text1 = QLabel("Tanggal : ")
+        text2 = QLabel("Aktivitas : ")
+        text3 = QLabel("Capaian : ")
+        text4 = QLabel("Kalori : ")
+
+        text1.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+        text2.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+        text3.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+        text4.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+
+        row1.addWidget(text1)
+        row1.addWidget(date_form)
+        row2.addWidget(text2)
+        row2.addWidget(activity_form)
+        row3.addWidget(text3)
+        row3.addWidget(achievement_form)
+        row4.addWidget(text4)
+        row4.addWidget(calorie_form)
+
+        self.form_layout.addLayout(row1)
+        self.form_layout.addLayout(row2)
+        self.form_layout.addLayout(row3)
+        self.form_layout.addLayout(row4)
+
+        button_row = QHBoxLayout()
+        self.add_button = QPushButton("Add")
+        self.cancel_button = QPushButton("Cancel")
+        self.add_button.clicked.connect(switch_to_ui)
+        self.cancel_button.clicked.connect(switch_to_ui)
+        self.layout.addWidget(subheader)
+        self.layout.addWidget(self.form_box, alignment= Qt.AlignHCenter | Qt.AlignTop)
+        subheader.setAlignment(Qt.AlignCenter)
+        #self.form_box.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        button_row.addStretch()
+        button_row.addWidget(self.add_button)
+        button_row.addWidget(self.cancel_button)
+        self.layout.addLayout(button_row)
+        self.setLayout(self.layout)
 
 
 class ActivityUI(QWidget):
@@ -145,43 +214,45 @@ class ActivityUI(QWidget):
         self.resize(500, 500)
 
         #Initialize
+        self.master_layout = QVBoxLayout(self)
         self.header = QLabel("Aktivitas Fisik")
-        self.layout = QVBoxLayout(self)
-        self.row1 = QHBoxLayout(self)
+        self.log_menu = QWidget()
+        self.log_menu_layout = QVBoxLayout(self.log_menu)
         self.add_button = QPushButton("Tambah Log Baru")
         self.add_button.setStyleSheet("font-size:30px;min-width: 80px;min-height: 60px;")
         self.add_button.clicked.connect(self.toggle_form)
         self.log_area = QScrollArea()
         self.log_area.setWidgetResizable(True)
         self.box_container = QWidget()
+        self.log_area.setWidget(self.box_container)
         self.box_layout = QVBoxLayout(self.box_container)
         self.box_layout.setAlignment(Qt.AlignTop)  # Align boxes at the top
-        self.log_area.setWidget(self.box_container)
+
         self.stacked_layout = QStackedLayout()
-        self.form = ActivityForm(self.show_ui)
-        self.stacked_layout.addWidget(self.box_container)
+        self.form = ActivityForm(self.toggle_form)
+        self.stacked_layout.addWidget(self.log_menu)
         self.stacked_layout.addWidget(self.form)
 
         #Begin modifying
         self.header.setAlignment(Qt.AlignHCenter)
         self.header.setFont(QFont("Arial", 30))
         #self.row1.addStretch()
-        self.row1.addWidget(self.add_button)
+        self.log_menu_layout.addWidget(self.add_button)
 
         #Begin Layout
-        self.layout.addWidget(self.header)
-        self.layout.addLayout(self.row1)
-        self.layout.addWidget(self.log_area)
+        self.master_layout.addWidget(self.header)
+        self.log_menu_layout.addWidget(self.log_area)
+        self.master_layout.addLayout(self.stacked_layout)
         for i in range(10):
             #Sementara kyk gini
             self.log = Log(self.box_layout)
             self.box_layout.addWidget(self.log)
         
-    def show_form(self): 
-        self.stacked_layout.setCurrentWidget(self.form)
+    # def show_form(self): 
+    #     self.stacked_layout.setCurrentWidget(self.form)
 
-    def show_ui(self): 
-        self.stacked_layout.setCurrentWidget(self.box_container)
+    # def show_log_area(self): 
+    #     self.stacked_layout.setCurrentWidget(self.log_area)
         
     def toggle_form(self):
         """Toggle between pages."""
@@ -193,5 +264,6 @@ class ActivityUI(QWidget):
 if __name__ == "__main__":
     app = QApplication([])
     window = ActivityUI()
+    window.showMaximized()
     window.show()
     sys.exit(app.exec_())
