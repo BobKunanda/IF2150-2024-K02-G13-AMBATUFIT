@@ -137,11 +137,10 @@ class ActivityForm(QWidget):
         subheader.setStyleSheet("""
         font-size:50px;
         font-family:Arial;
-        border: 2px solid black;
         """)
+        #Lame fix, but works
         policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         subheader.setSizePolicy(policy)
-
         self.form_box = QFrame()
         self.form_box.setStyleSheet("""
             border: 2px solid black;
@@ -192,17 +191,54 @@ class ActivityForm(QWidget):
         self.form_layout.addLayout(row4)
 
         button_row = QHBoxLayout()
-        self.add_button = QPushButton("Add")
-        self.cancel_button = QPushButton("Cancel")
-        self.add_button.clicked.connect(switch_to_ui)
-        self.cancel_button.clicked.connect(switch_to_ui)
+        add_button = QPushButton("Add")
+        cancel_button = QPushButton("Cancel")
+        add_button.setStyleSheet("""
+            QPushButton {
+                min-width: 160px;
+                min-height: 60px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 15px;
+                font-size: 20px;
+            }
+                                 
+            QPushButton:hover{
+                background-color: #106309;
+            }
+        """
+        )
+
+        cancel_button.setStyleSheet("""
+            QPushButton {
+                min-width: 160px;
+                min-height: 60px;
+                background-color: #de0735;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 15px;
+                font-size: 20px;
+            }
+            
+            QPushButton:hover{
+                background-color: #a6021d;
+            }
+        """
+        )
+        add_button.clicked.connect(switch_to_ui)
+        cancel_button.clicked.connect(switch_to_ui)
         self.layout.addWidget(subheader)
         self.layout.addWidget(self.form_box, alignment= Qt.AlignHCenter | Qt.AlignTop)
         subheader.setAlignment(Qt.AlignCenter)
         #self.form_box.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         button_row.addStretch()
-        button_row.addWidget(self.add_button)
-        button_row.addWidget(self.cancel_button)
+        button_row.addWidget(add_button)
+        button_row.addWidget(cancel_button)
+        button_row.setAlignment(Qt.AlignTop)
+        button_row.addStretch()
         self.layout.addLayout(button_row)
         self.setLayout(self.layout)
 
