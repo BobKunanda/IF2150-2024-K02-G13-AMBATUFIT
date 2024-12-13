@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QScrollArea, 
-QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QStackedWidget)
+QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QStackedWidget, QStackedLayout)
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
@@ -126,6 +126,16 @@ class Log(QFrame):
             self.parent_layout.removeWidget(self)
             self.deleteLater()  # Deletes the widget
 
+class ActivityForm(QWidget):
+    def __init__(self, switch_to_form):
+        super().__init__()
+        layout = QVBoxLayout()
+        label = QLabel("This is Form")
+        button = QPushButton("Go to UI")
+        button.clicked.connect(switch_to_form)
+        layout.addWidget(label)
+        layout.addWidget(button)
+        self.setLayout(layout)
 
 
 class ActivityUI(QWidget):
@@ -140,12 +150,17 @@ class ActivityUI(QWidget):
         self.row1 = QHBoxLayout(self)
         self.add_button = QPushButton("Tambah Log Baru")
         self.add_button.setStyleSheet("font-size:30px;min-width: 80px;min-height: 60px;")
+        self.add_button.clicked.connect(self.toggle_form)
         self.log_area = QScrollArea()
         self.log_area.setWidgetResizable(True)
         self.box_container = QWidget()
         self.box_layout = QVBoxLayout(self.box_container)
         self.box_layout.setAlignment(Qt.AlignTop)  # Align boxes at the top
         self.log_area.setWidget(self.box_container)
+        self.stacked_layout = QStackedLayout()
+        self.form = ActivityForm(self.show_form)
+        self.stacked_layout.addWidget(self.box_container)
+        self.stacked_layout.addWidget(self.form)
 
         #Begin modifying
         self.header.setAlignment(Qt.AlignHCenter)
@@ -158,8 +173,18 @@ class ActivityUI(QWidget):
         self.layout.addLayout(self.row1)
         self.layout.addWidget(self.log_area)
         for i in range(10):
+            #Sementara kyk gini
             self.log = Log(self.box_layout)
             self.box_layout.addWidget(self.log)
+        
+    def show_form(self): 
+        self.stacked_layout.setCurrentWidget(self.form)
+        
+    def toggle_form(self):
+        """Toggle between pages."""
+        current_index = self.stacked_layout.currentIndex()
+        next_index = (current_index + 1) % self.stacked_layout.count()
+        self.stacked_layout.setCurrentIndex(next_index)
 
 
 if __name__ == "__main__":
