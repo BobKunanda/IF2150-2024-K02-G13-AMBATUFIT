@@ -33,9 +33,13 @@ class SaranKebugaranWidget(QWidget):
 
         # Create two "cards" with Saran Kebugaran titles
         try:
-            saran_data = self.controller.get_corresponding_saran_kebugaran()
-            saran_latihan = saran_data["saran_latihan"]
-            saran_nutrisi = saran_data["saran_nutrisi"]
+            if (self.controller.get_corresponding_saran_kebugaran() == None):
+                saran_latihan = "Data profil belum diisi"
+                saran_nutrisi = "Data profil belum diisi"
+            else:
+                saran_data = self.controller.get_corresponding_saran_kebugaran()
+                saran_latihan = saran_data["saran_latihan"]
+                saran_nutrisi = saran_data["saran_nutrisi"]
 
             # Create two "cards" with the saran kebugaran titles and descriptions
             saran1Container = self.createCard("Saran Latihan", saran_latihan)
