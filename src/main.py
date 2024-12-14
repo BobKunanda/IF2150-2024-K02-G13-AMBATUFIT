@@ -8,6 +8,7 @@ from frontend.DisplayAsupanNutrisi import AsupanNutrisiWidget
 from PyQt5.QtGui import QFontDatabase, QFont, QIcon
 from frontend.Exercise.exercise import Exercise
 from frontend.DisplayNotifikasi import DisplayNotif
+from frontend.DisplaySaranKebugaran import SaranKebugaranWidget
 
 font_path = "src/assets/fonts/pjs-med.ttf"
 class MainWindow(QMainWindow):
@@ -45,7 +46,8 @@ class MainWindow(QMainWindow):
         nutrition = AsupanNutrisiWidget(db_filename)
         self.pageManager.addWidget(nutrition)
 
-        advice = QLabel("advice")
+        # advice = QLabel("advice")
+        advice = SaranKebugaranWidget(db_filename)
         self.pageManager.addWidget(advice)
 
         notification = DisplayNotif(db_filename)
@@ -62,6 +64,8 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("Main")
         self.setGeometry(100, 100, 800, 600)
+
+        
 
         # Pilihan tombol
         self.sidebar.profileButton.clicked.connect(lambda:self.displayProfile(profile))

@@ -70,11 +70,11 @@ class PersonalData:
         result = fetch_one(connection, cursor, query)
 
         if result:
-            self._nama = result[4]
-            self._usia = result[1]
-            self._tinggi = result[2]
-            self._beratBadan = result[5]
-            self._tujuanKebugaran = result[3]
+            self._nama = result[1]
+            self._usia = result[2]
+            self._tinggi = result[3]
+            self._beratBadan = result[4]
+            self._tujuanKebugaran = result[5]
 
         # Menutup koneksi
         connection.close()
