@@ -129,6 +129,8 @@ class ListSkemaLatihan:
 
         if result:
             self._listSkema = result
+        else:
+            self._listSkema = None
         
         connection.close()
 
@@ -225,7 +227,8 @@ class ListDetailSkemaLatihan:
 
         if result:
             self._list_detail = result
-        
+        else:
+            self._list_detail = None
         connection.close()
 
         return self._list_detail     
