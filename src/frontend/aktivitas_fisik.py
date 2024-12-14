@@ -11,8 +11,8 @@ class Log(QFrame):
         self.parent_layout = parent_layout
 
         self.setStyleSheet("""
-            border: 2px solid black;
-            background-color: #d0d0d0;
+            border: none;
+            background-color: #ffffff;
         """)
         self.setFixedSize(1000, 300)
 
@@ -144,8 +144,11 @@ class ActivityForm(QWidget):
         subheader.setSizePolicy(policy)
         self.form_box = QFrame()
         self.form_box.setStyleSheet("""
-            border: 2px solid black;
-            background-color: #d0d0d0;
+        QFrame {
+            border: black solid 2px;
+            background-color: #ffffff;
+            padding : 5px;
+        }
         """)
         self.form_box.setFixedSize(2000, 600)
         self.form_layout = QVBoxLayout(self.form_box)
@@ -161,6 +164,38 @@ class ActivityForm(QWidget):
         calorie_form.setFixedWidth(200)
         cal_validator = QIntValidator(0, 3000)
         calorie_form.setValidator(cal_validator)
+
+        date_form.setStyleSheet("""
+            QDateEdit {
+                border: 2px solid #0078d7; /* Blue border */
+                border-radius: 5px;       /* Rounded corners */
+                padding: 2px;
+            }
+        """)
+
+        activity_form.setStyleSheet("""
+            QDateEdit {
+                border: 2px solid #0078d7; /* Blue border */
+                border-radius: 5px;       /* Rounded corners */
+                padding: 2px;
+            }
+        """)
+
+        achievement_form.setStyleSheet("""
+            QDateEdit {
+                border: 2px solid #0078d7; /* Blue border */
+                border-radius: 5px;       /* Rounded corners */
+                padding: 2px;
+            }
+        """)
+
+        calorie_form.setStyleSheet("""
+            QDateEdit {
+                border: 2px solid #0078d7; /* Blue border */
+                border-radius: 5px;       /* Rounded corners */
+                padding: 2px;
+            }
+        """)
 
         row1 = QHBoxLayout()
         row2 = QHBoxLayout()
@@ -321,14 +356,31 @@ class ActivityUI(QWidget):
         super().__init__()
         self.setWindowTitle("Aktivitas Fisik")
         self.resize(500, 500)
+        self.setStyleSheet("background-color: #f5f5f5;")
 
         #Initialize
         self.master_layout = QVBoxLayout(self)
         self.header = QLabel("Aktivitas Fisik")
         self.log_menu = QWidget()
         self.log_menu_layout = QVBoxLayout(self.log_menu)
+        button_row = QHBoxLayout()
         self.add_button = QPushButton("Tambah Log Baru")
-        self.add_button.setStyleSheet("font-size:30px;min-width: 80px;min-height: 60px;")
+        self.add_button.setStyleSheet("""
+        QPushButton {
+                background-color: #3c4a71;       /* Blue background */
+                color: white;                /* White text */
+                border: none;                /* No border */
+                border-radius: 15px;         /* Rounded corners */
+                font-size: 25px;             /* Font size */
+                padding: 10px;               /* Padding inside the button */
+                font-family: Arial;
+                height:40px;
+                width: 250px;
+            }
+            QPushButton:hover {
+                background-color: #222b42;  /* Darker blue on hover */
+            }
+        """)
         self.add_button.clicked.connect(self.toggle_form)
         self.log_area = QScrollArea()
         self.log_area.setWidgetResizable(True)
@@ -346,7 +398,9 @@ class ActivityUI(QWidget):
         self.header.setAlignment(Qt.AlignHCenter)
         self.header.setFont(QFont("Arial", 30))
         #self.row1.addStretch()
-        self.log_menu_layout.addWidget(self.add_button)
+        button_row.addStretch()
+        button_row.addWidget(self.add_button)
+        self.log_menu_layout.addLayout(button_row)
 
         #Begin Layout
         self.master_layout.addWidget(self.header)
