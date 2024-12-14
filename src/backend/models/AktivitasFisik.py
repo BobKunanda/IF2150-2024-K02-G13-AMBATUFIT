@@ -22,7 +22,7 @@ class AktivitasFisik:
 
     def getActivityId(self):
         return self._activity_id
-    
+
     def getAchievement(self):
         return self._achievement
 
@@ -49,8 +49,41 @@ class AktivitasFisik:
         self._calorie = calorie
 
     def setActivityName(self, activity_name):
-        self._activity_ = activity_name
+        self._activity_name = activity_name
     
+    def get_id_from_activity(self):
+        if self._activity_name != None:
+            connection, cursor = connect_db(self.db_filename)
+            query = """
+            SELECT id FROM latihan WHERE (nama = ?)
+        """
+            params = (self._activity_name,)
+
+        # Menjalankan query untuk memperbarui data
+            result = fetch_one(connection, cursor, query, params)
+
+        # Menutup koneksi
+            connection.close()
+            self.setActivityId(result[0])
+        else:
+            pass
+    
+    def get_activity_from_id(self):
+        if self._activity_id != None:
+            connection, cursor = connect_db(self.db_filename)
+            query = """
+            SELECT nama FROM latihan WHERE (id = ?)
+        """
+            params = (self._activity_id)
+
+        # Menjalankan query untuk memperbarui data
+            result = fetch_one(connection, cursor, query, params)
+        # Menutup koneksi
+            connection.close()
+            self.setActivityName(result[0])
+        else:
+            pass
+
     def add_log(self):
         connection, cursor = connect_db(self.db_filename)
         # Query untuk mengupdate data pada id = 1
@@ -145,5 +178,7 @@ class ListAktivitas:
     
 
 if __name__ == "__main__":
-    list_aktivitas = ListAktivitas("src/data/data.db")
-    print(list_aktivitas.getListAktivitas())
+    aktivitas = AktivitasFisik("src/data/data.db")
+    aktivitas.setActivityName("Situp")
+    aktivitas.get_id_from_activity()
+    print(aktivitas.getActivityId())

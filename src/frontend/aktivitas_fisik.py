@@ -164,22 +164,22 @@ class ActivityForm(QWidget):
         self.form_layout = QVBoxLayout(self.form_box)
 
         #JANGAN LUPA UBAH TANGGAL DARI GARING KE YY-MM-DD
-        date_form = QDateTimeEdit()
-        date_form.setDateTime(QDateTime.currentDateTime())
-        activity_form = QComboBox()
+        self.date_form = QDateTimeEdit()
+        self.date_form.setDateTime(QDateTime.currentDateTime())
+        self.activity_form = QComboBox()
         input_list = ListAktivitasController(self.db_fileName).getListAktivitasValid()
         for i in input_list:
-            activity_form.addItem(i)
-        achievement_form = QLineEdit()
-        achievement_form.setFixedWidth(200)
+            self.activity_form.addItem(i)
+        self.achievement_form = QLineEdit()
+        self.achievement_form.setFixedWidth(200)
         ach_validator = QIntValidator(0, 1000)
-        achievement_form.setValidator(ach_validator)
-        calorie_form = QLineEdit()
-        calorie_form.setFixedWidth(200)
+        self.achievement_form.setValidator(ach_validator)
+        self.calorie_form = QLineEdit()
+        self.calorie_form.setFixedWidth(200)
         cal_validator = QIntValidator(0, 3000)
-        calorie_form.setValidator(cal_validator)
+        self.calorie_form.setValidator(cal_validator)
 
-        date_form.setStyleSheet("""
+        self.date_form.setStyleSheet("""
             QDateEdit {
                 border: 2px solid #0078d7; /* Blue border */
                 border-radius: 5px;       /* Rounded corners */
@@ -187,7 +187,7 @@ class ActivityForm(QWidget):
             }
         """)
 
-        activity_form.setStyleSheet("""
+        self.activity_form.setStyleSheet("""
             QDateEdit {
                 border: 2px solid #0078d7; /* Blue border */
                 border-radius: 5px;       /* Rounded corners */
@@ -195,7 +195,7 @@ class ActivityForm(QWidget):
             }
         """)
 
-        achievement_form.setStyleSheet("""
+        self.achievement_form.setStyleSheet("""
             QDateEdit {
                 border: 2px solid #0078d7; /* Blue border */
                 border-radius: 5px;       /* Rounded corners */
@@ -203,7 +203,7 @@ class ActivityForm(QWidget):
             }
         """)
 
-        calorie_form.setStyleSheet("""
+        self.calorie_form.setStyleSheet("""
             QDateEdit {
                 border: 2px solid #0078d7; /* Blue border */
                 border-radius: 5px;       /* Rounded corners */
@@ -227,13 +227,13 @@ class ActivityForm(QWidget):
         text4.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
 
         row1.addWidget(text1)
-        row1.addWidget(date_form)
+        row1.addWidget(self.date_form)
         row2.addWidget(text2)
-        row2.addWidget(activity_form)
+        row2.addWidget(self.activity_form)
         row3.addWidget(text3)
-        row3.addWidget(achievement_form)
+        row3.addWidget(self.achievement_form)
         row4.addWidget(text4)
-        row4.addWidget(calorie_form)
+        row4.addWidget(self.calorie_form)
 
         self.form_layout.addLayout(row1)
         self.form_layout.addLayout(row2)
@@ -294,8 +294,8 @@ class ActivityForm(QWidget):
     
     def confirm_adding(self):
         dialog = QMessageBox(self)
-        dialog.setWindowTitle("Konfirmasi Hapus")
-        dialog.setText("Apakah Anda yakin ingin menghapus log ini")
+        dialog.setWindowTitle("Konfirmasi")
+        dialog.setText("Apakah Anda yakin ingin menambah log ini?")
         #Iconnya jelek anjir ada border itemnnya
         #dialog.setIcon(QMessageBox.Warning)
         dialog.setMinimumSize(500, 500)
@@ -359,12 +359,17 @@ class ActivityForm(QWidget):
         # Show the dialog and get the response
         response = dialog.exec_()
         if response == QMessageBox.Yes:
+            data_log = {}
+            data_log["date"] = self.date_form.date()
+            data_log["jam"] = self.date_form.time()
+            data_log["nama_aktivitas"] = self.activity_form.currentText()
+            data_log["capaian"] = self.achievement_form.text()
+            data_log["kalori"] = self.calorie_form.text()
+            AktivitasFisikController(self.db_fileName).addAktivitas(data_log)
             self.switch_to_ui()
         else:
             pass
             
-
-
 
 class ActivityUI(QWidget):
     def __init__(self, db_fileName):

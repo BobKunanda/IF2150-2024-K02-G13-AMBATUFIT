@@ -1,6 +1,6 @@
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, time
 # Pastikan kita menambahkan path ke folder src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
@@ -11,6 +11,7 @@ class AktivitasFisikController:
         self._model_aktivitas = AktivitasFisik(db_fileName)
     
     #Dari id ke isi database buat display
+
     def getAktivitas(self,id):
         self._model_aktivitas.setLogId(id)
         self._model_aktivitas.get_log()
@@ -20,7 +21,6 @@ class AktivitasFisikController:
 
         # Format the time as "HH:MM"
         time_str = dt.strftime("%H:%M")
-
 
         data_log = {
             'id' : self._model_aktivitas.getLogId(),
@@ -36,15 +36,18 @@ class AktivitasFisikController:
     
     #Dari form log ke database
     def addAktivitas(self, data_log):
-        _date = datetime.strptime(data_log['date'], "%Y-%m-%d").date()
-        _time = datetime.strptime(data_log['jam'], "%H:%M").time()
-        _datetime = datetime.combine(_date, _time)
+        _date = data_log["date"].toString("yyyy-MM-dd")
+        _time_hour = data_log["jam"].hour()
+        _time_minute = data_log["jam"].minute()
+        time_obj = time(_time_hour, _time_minute)
+        formatted_time = time_obj.strftime("%H:%M")
+        _datetime = _date + " " + formatted_time 
         self._model_aktivitas.setDate(_datetime)
-        self._model_aktivitas.setActivityId(data_log['id_aktivitas'])
         self._model_aktivitas.setActivityName(data_log['nama_aktivitas'])
-        self._model_aktivitas.setAchivement(data_log['capaian'])
+        self._model_aktivitas.get_id_from_activity()
+        self._model_aktivitas.setAchievement(data_log['capaian'])
         self._model_aktivitas.setCalorie(data_log['kalori'])
-        self._model_aktivitas.createAktivitas()
+        self._model_aktivitas.add_log()
             
     def deleteAktivitas(self,data_log):
         self._model_aktivitas.setId(data_log['id'])
