@@ -4,7 +4,10 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from frontend.profile import Profile
+
 from frontend.home import Home
+from frontend.DisplayAsupanNutrisi import AsupanNutrisiWidget
+
 from PyQt5.QtGui import QFontDatabase, QFont, QIcon
 from frontend.Exercise.exercise import Exercise
 from frontend.DisplayNotifikasi import DisplayNotif
@@ -42,7 +45,7 @@ class MainWindow(QMainWindow):
         activity = QLabel("activity")
         self.pageManager.addWidget(activity)
 
-        nutrition = QLabel("nutrition")
+        nutrition = AsupanNutrisiWidget(db_filename)
         self.pageManager.addWidget(nutrition)
 
         advice = QLabel("advice")
