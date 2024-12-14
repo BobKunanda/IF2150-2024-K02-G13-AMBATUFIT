@@ -17,14 +17,14 @@ from backend.controllers.NotifikasiController import NotifikasiController, ListN
 
 
 class NotifCard(QWidget):
-    def __init__(self,  db_fileName , notif_data , update_ui_callback = None  ,parent = None):
+    def __init__(self,  db_fileName , notif_data , update_ui_callback = None  ,parent = None,epoch_time = None):
         super().__init__(parent)
 
         self.parent_window = parent
         self._notif_data = notif_data
         self.db_fileName = db_fileName
         self.update_ui = update_ui_callback
-        self.current_epoch_time = int(time.time())
+        self.current_epoch_time = epoch_time
 
         # Create a card frame
         card = QFrame()
@@ -49,10 +49,11 @@ class NotifCard(QWidget):
         late_label.setStyleSheet("color: red; font-size: 16px; border:none;")
         card_layout.addWidget(late_label)
 
-        if self.current_epoch_time <= notif_data['epoch']:
-            late_label.hide()  # If current time is greater, hide the label
-        else:
-            late_label.show()  # Otherwise, show the label
+        if self.current_epoch_time:
+            if self.current_epoch_time < notif_data['epoch']:
+                late_label.hide()  
+            else:
+                late_label.show() 
 
 
         # Title, duration, and type
@@ -314,7 +315,7 @@ class AddNotifPage(QWidget):
         self.jam_dropdown.setCurrentIndex(0)
         self.menit_dropdown.setCurrentIndex(0)
         self.detik_dropdown.setCurrentIndex(0)
-        # Kembali ke halaman utama dan refresh
+        
         self.update_ui()
         self.return_callback()
 
@@ -643,14 +644,14 @@ class DisplayNotif(QWidget):
             self.notif_layout.addWidget(empty_label, 0, 0) 
         else:
             for notif_data in self._list_notif:
-                notif_card = NotifCard(self._db_fileName, notif_data, update_ui_callback=self.refresh_notifikasi,parent = self)
+                notif_card = NotifCard(self._db_fileName, notif_data, update_ui_callback=self.refresh_notifikasi,parent = self, epoch_time=self.current_epoch_time)
                 self.notif_layout.addWidget(notif_card, row, col)
 
                 col += 1
                 if col > 1: 
                     col = 0
                     row += 1
-        upcoming_notif = [notif for notif in self._list_notif if (0 <= notif['epoch'] - self.current_epoch_time <= 3600 )]
+        upcoming_notif = [notif for notif in self._list_notif if (0 < notif['epoch'] - self.current_epoch_time < 3600 )]
         expired_notif = [notif for notif in self._list_notif if (0 <= self.current_epoch_time - notif['epoch'] <= 3600)]
 
         self._home.refresh_notif(upcoming_notif,expired_notif)
