@@ -4,10 +4,15 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from frontend.profile import Profile
+
+from frontend.home import Home
 from frontend.DisplayAsupanNutrisi import AsupanNutrisiWidget
+
+from frontend.aktivitas_fisik import ActivityUI
 from PyQt5.QtGui import QFontDatabase, QFont, QIcon
 from frontend.Exercise.exercise import Exercise
 from frontend.DisplayNotifikasi import DisplayNotif
+from frontend.DisplaySaranKebugaran import SaranKebugaranWidget
 
 font_path = "src/assets/fonts/pjs-med.ttf"
 class MainWindow(QMainWindow):
@@ -22,33 +27,34 @@ class MainWindow(QMainWindow):
 
         self.pageManager = QStackedLayout()
         self.subContainer = QWidget()
-        self.sidebar = SideBar()
 
-        self.mainLayout.addWidget(self.sidebar)
 
         # Ini bakalan diisi ntar
         db_filename = os.path.join(os.path.dirname(__file__), 'data', 'data.db')
+        self.sidebar = SideBar(db_filename)
+        self.mainLayout.addWidget(self.sidebar)
 
-        profile = Profile(db_filename)
+        self.home = Home(db_filename)
+        self.pageManager.addWidget(self.home)
+        self.pageManager.setCurrentWidget(self.home) # --> Defaulnya bakal nampilin home dulu
+
+        profile = Profile(db_filename, sidebar=self.sidebar, home=self.home)
         self.pageManager.addWidget(profile)
-
-        home = QLabel("Home")
-        self.pageManager.addWidget(home)
-        self.pageManager.setCurrentWidget(home) # --> Defaulnya bakal nampilin home dulu
         
         excercise = Exercise(db_filename)
         self.pageManager.addWidget(excercise)
 
-        activity = QLabel("activity")
+        activity = ActivityUI(db_filename)
         self.pageManager.addWidget(activity)
 
         nutrition = AsupanNutrisiWidget(db_filename)
         self.pageManager.addWidget(nutrition)
 
-        advice = QLabel("advice")
+        # advice = QLabel("advice")
+        advice = SaranKebugaranWidget(db_filename)
         self.pageManager.addWidget(advice)
 
-        notification = DisplayNotif(db_filename)
+        notification = DisplayNotif(db_filename,home = self.home)
         self.pageManager.addWidget(notification)
         #----------------------------------------------------------#
 
@@ -63,9 +69,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Main")
         self.setGeometry(100, 100, 800, 600)
 
+        
+
         # Pilihan tombol
         self.sidebar.profileButton.clicked.connect(lambda:self.displayProfile(profile))
-        self.sidebar.button_widgets[0].clicked.connect(lambda: self.displayHome(home))
+        self.sidebar.button_widgets[0].clicked.connect(lambda: self.displayHome(self.home))
         self.sidebar.button_widgets[1].clicked.connect(lambda: self.displayExercise(excercise))
         self.sidebar.button_widgets[2].clicked.connect(lambda: self.displayActivity(activity))
         self.sidebar.button_widgets[3].clicked.connect(lambda: self.displayNutrion(nutrition))

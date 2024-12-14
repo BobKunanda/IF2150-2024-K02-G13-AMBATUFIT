@@ -1,13 +1,17 @@
 import sys
 import os
-from PyQt5.QtWidgets import QMessageBox,QGraphicsDropShadowEffect, QTextEdit, QVBoxLayout,QSpacerItem, QSizePolicy, QHBoxLayout, QWidget, QPushButton, QLabel, QStackedLayout, QLineEdit
+from PyQt5.QtWidgets import (QMessageBox,QGraphicsDropShadowEffect, QTextEdit, QVBoxLayout,QSpacerItem, 
+                             QSizePolicy, QHBoxLayout, QWidget, QPushButton, QLabel, 
+                             QStackedLayout, QLineEdit,QComboBox)
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 from backend.controllers.PersonalDataController import ProfileController
 
 class Profile(QWidget):
-    def __init__(self, db_filename):
+    def __init__(self, db_filename, sidebar = None, home = None):
         super().__init__()
+        self.sidebar = sidebar
+        self.home = home
         self.controller = ProfileController(db_filename)  
         self.initUI()
 
@@ -164,64 +168,27 @@ class Profile(QWidget):
         layoutForm.setContentsMargins(20, 0, 0, 0)
         layoutForm.setSpacing(2)
 
-        if label != "Fitness Goal":
-            content = str(content) if isinstance(content,int) else content
-            content = str(content) if isinstance(content,float) else content
-            if content == None:
-                content = ""
+        content = str(content) if isinstance(content,int) else content
+        content = str(content) if isinstance(content,float) else content
+        if content == None:
+            content = ""
 
-            if label == "Weight":
-                textlabel.setText(label.ljust(12) + ":   " + content+" Kg")
-            elif label == "Height":
-                textlabel.setText(label.ljust(12) + ":   " + content +" Cm")
-            else:
-                textlabel.setText(label.ljust(12) + ":   " + content)
-
-            layoutForm.addWidget(textlabel)
-            textlabel.setStyleSheet("""
-            QLabel {
-                font-size: 14px;
-                font-weight: bold;
-                color: #2c3e50;
-            }
-            """)
+        if label == "Weight":
+            textlabel.setText(label.ljust(12) + ":   " + content+" Kg")
+        elif label == "Height":
+            textlabel.setText(label.ljust(12) + ":   " + content +" Cm")
         else:
-            text = label.ljust(12) + ":"
-            textlabel.setText(text)
-            layoutForm.addWidget(textlabel)
-            textlabel.setStyleSheet("""
-            QLabel {
-                font-size: 14px;
-                font-weight: bold;
-                color: #34495e;
-            }
-            """)
-            self.fitnessGoalWidget = QTextEdit()
-            self.fitnessGoalWidget.setText(content)
-            self.fitnessGoalWidget.setReadOnly(True)
-            self.fitnessGoalWidget.setMaximumHeight(150)
-            self.fitnessGoalWidget.setMinimumWidth(500)
-            self.fitnessGoalWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-            self.fitnessGoalWidget.setStyleSheet("""
-                QTextEdit {
-                    border: 2px solid #000000;
-                    border-radius: 10px;
-                    padding: 10px;
-                    background-color: #f5f5f5;
-                    font-size: 14px;
-                    font-family: Arial, sans-serif;
-                    color: #2c3e50;
-                }
-            """)
+            textlabel.setText(label.ljust(12) + ":   " + content)
 
-            shadow_effect = QGraphicsDropShadowEffect()
-            shadow_effect.setBlurRadius(12)
-            shadow_effect.setOffset(4, 4)
-            shadow_effect.setColor(QColor(0, 0, 0, 160))
+        layoutForm.addWidget(textlabel)
+        textlabel.setStyleSheet("""
+        QLabel {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        """)
 
-            self.fitnessGoalWidget.setGraphicsEffect(shadow_effect)
-
-            layoutForm.addWidget(self.fitnessGoalWidget, alignment=Qt.AlignTop)
 
         formContainer.setLayout(layoutForm)
 
@@ -234,27 +201,25 @@ class Profile(QWidget):
         layoutForm.setSpacing(10)
 
         if label == "Fitness Goal":
-            layoutForm = QVBoxLayout()
-            layoutForm.setContentsMargins(20, 0, 0, 0)
-            layoutForm.setSpacing(10)
-            inputField = QTextEdit()
-            inputField.setText(content)
-            inputField.setMaximumHeight(150)
-            inputField.setMinimumWidth(500)
-            inputField.setStyleSheet("""
-            QTextEdit {
-                border: 2px solid #2980b9;
-                border-radius: 5px;
-                padding: 10px;
-                background-color: #f9f9f9;
-                color: #2c3e50;
-            }
-            QTextEdit:focus {
-                border: 2px solid #1abc9c;
-                background-color: #ffffff;
-                color: #2c3e50;
-            }
-            """)
+            inputField = QComboBox()
+            inputField.addItem("Select Goal")
+            goals = [
+                "weight_loss",
+                "muscle_gain",
+                "fat_loss",
+                "rehabilitation",
+                "toning",
+                "maintain_weight",
+                "flexibility",
+                "strength",
+                "endurance",
+                "mobility",
+                "posture",
+                "mental_health",
+                "general_health"
+            ]
+            inputField.addItems(goals)
+        
             self.inputFields[label] = inputField
         else:
             inputField = QLineEdit()
@@ -299,14 +264,40 @@ class Profile(QWidget):
         updated_data = {}
         for label in self.labels:
             if label[1] == "Fitness Goal":
-                new_value = self.inputFields[label[1]].toPlainText().strip()
+                new_value = self.inputFields[label[1]].currentText()
             else:
                 new_value = self.inputFields[label[1]].text().strip()
-
-            # Tampilkan pop-up jika input kosong
             if not new_value:
                 self.showWarningPopup(f"{label[1]} cannot be empty.")
                 return
+
+            # Tampilkan pop-up jika input kosong
+            if label[1] == "Fitness Goal" and new_value == "Select Goal":
+                self.showWarningPopup(f"{label[1]} Select goal first.")
+                return
+            elif label[1] == "Age":
+                if int(new_value) <= 0:
+                    self.showWarningPopup(f"{label[1]} cannot lower than 0.")
+                    return;
+                elif int(new_value) > 99:
+                    self.showWarningPopup(f"{label[1]} cannot higher than 99.")
+                    return;
+            elif label[1] == "Height":
+                if int(new_value) <= 0:
+                    self.showWarningPopup(f"{label[1]} cannot lower than 0.")
+                    return;
+                elif int(new_value) >= 350:
+                    self.showWarningPopup(f"{label[1]} cannot higher than 350.")
+                    return;
+            elif label[1] == "Weight":
+                if int(new_value) <= 0:
+                    self.showWarningPopup(f"{label[1]} cannot lower than 0.")
+                    return;
+                elif int(new_value) >= 350:
+                    self.showWarningPopup(f"{label[1]} cannot higher than 350.")
+                    return;
+    
+    
 
             updated_data[label[0]] = new_value
 
@@ -319,19 +310,19 @@ class Profile(QWidget):
         # Update tampilan untuk mencerminkan data baru
         for i, label in enumerate(self.labels):
             container = self.profileLayout.itemAt(i).widget()
-            if label[1] == "Fitness Goal":
-                new_value = self.profile_data[label[0]]
-                self.fitnessGoalWidget.setText(new_value)
+
+            if label[1] == "Weight":
+                text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]} Kg"
+            elif label[1] == "Height":
+                text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]} Cm"
             else:
-                if label[1] == "Weight":
-                    text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]} Kg"
-                elif label[1] == "Height":
-                    text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]} Cm"
-                else:
-                    text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]}"
-                container.layout().itemAt(0).widget().setText(text)
+                text = f"{label[1].ljust(12)}:   {self.profile_data[label[0]]}"
+            container.layout().itemAt(0).widget().setText(text)
 
         # Kembali ke mode tampilan
+        self.sidebar.refresh_name(self.profile_data['nama'])
+        self.home.refresh_name(self.profile_data['nama'])
+
         self.toggleEditMode()
 
     def showWarningPopup(self, message):

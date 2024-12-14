@@ -17,13 +17,14 @@ from backend.controllers.NotifikasiController import NotifikasiController, ListN
 
 
 class NotifCard(QWidget):
-    def __init__(self,  db_fileName , notif_data , update_ui_callback = None  ,parent = None):
+    def __init__(self,  db_fileName , notif_data , update_ui_callback = None  ,parent = None,epoch_time = None):
         super().__init__(parent)
 
         self.parent_window = parent
         self._notif_data = notif_data
         self.db_fileName = db_fileName
         self.update_ui = update_ui_callback
+        self.current_epoch_time = epoch_time
 
         # Create a card frame
         card = QFrame()
@@ -36,12 +37,24 @@ class NotifCard(QWidget):
             }
             """
         )
-        card.setFixedHeight(200)  # Adjust height for better appearance
+        card.setFixedHeight(250)  # Adjust height for better appearance
 
         # Layout untuk card
         card_layout = QVBoxLayout()
         card_layout.setContentsMargins(10, 10, 10, 10)  # Margin dalam card
         card_layout.setSpacing(15)
+
+
+        late_label = QLabel("This notification has expired!!")
+        late_label.setStyleSheet("color: red; font-size: 16px; border:none;")
+        card_layout.addWidget(late_label)
+
+        if self.current_epoch_time:
+            if self.current_epoch_time < notif_data['epoch']:
+                late_label.hide()  
+            else:
+                late_label.show() 
+
 
         # Title, duration, and type
         title_label = QLabel(f"{notif_data['nama']}")
@@ -105,7 +118,7 @@ class NotifCard(QWidget):
         main_layout.addWidget(card)
 
     def confirm_deletion(self):
-        reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete this scheme?',
+        reply = QMessageBox.question(self, 'Confirm Deletion', 'Are you sure you want to delete this notification?',
                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         if reply == QMessageBox.Yes:
             
@@ -302,7 +315,7 @@ class AddNotifPage(QWidget):
         self.jam_dropdown.setCurrentIndex(0)
         self.menit_dropdown.setCurrentIndex(0)
         self.detik_dropdown.setCurrentIndex(0)
-        # Kembali ke halaman utama dan refresh
+        
         self.update_ui()
         self.return_callback()
 
@@ -515,7 +528,7 @@ class EditNotifPage(QWidget):
             self.return_callback()
 
 class DisplayNotif(QWidget):
-    def __init__(self, db_fileName):
+    def __init__(self, db_fileName,home = None):
         super().__init__()
         self._db_fileName = db_fileName
         self._list_notif_controller = ListNotifikasiController(db_fileName)
@@ -524,6 +537,7 @@ class DisplayNotif(QWidget):
         self._current_notif = None
         self.current_epoch_time = None
         self._queue = None
+        self._home = home
         
         
         self.stacked_widget = QStackedLayout(self)
@@ -569,6 +583,7 @@ class DisplayNotif(QWidget):
             for notif_data in self._list_notif:
                 notif_card = NotifCard(db_fileName, notif_data, update_ui_callback=self.refresh_notifikasi, parent=self)
                 self.notif_layout.addWidget(notif_card, row, col)
+                self.notif_layout.setAlignment(notif_card, Qt.AlignTop)
 
                 col += 1
                 if col > 1:
@@ -609,33 +624,39 @@ class DisplayNotif(QWidget):
         
 
     def refresh_notifikasi(self):
-            # Hapus semua widget dari layout
-            for i in reversed(range(self.notif_layout.count())): 
-                widget = self.notif_layout.itemAt(i).widget()
-                if widget is not None:
-                    widget.deleteLater()
+        # Hapus semua widget dari layout
+        for i in reversed(range(self.notif_layout.count())): 
+            widget = self.notif_layout.itemAt(i).widget()
+            if widget is not None:
+                widget.deleteLater()
 
-            # Ambil ulang data notifikasi
-            self._list_notif = self._list_notif_controller.getListNotifikasi()
-            self._list_notif.sort(key=lambda x: x["epoch"], reverse=True)
-            
+        # Ambil ulang data notifikasi
+        self._list_notif = self._list_notif_controller.getListNotifikasi()
+        self._list_notif.sort(key=lambda x: x["epoch"], reverse=True)
 
-            # Tambahkan kembali card
-            row = 0
-            col = 0
-            if not self._list_notif:  # Mengecek jika list kosong
-                empty_label = QLabel("No notifications available.")
-                empty_label.setAlignment(Qt.AlignCenter)
-                self.notif_layout.addWidget(empty_label, 0, 0) 
-            else:
-                for notif_data in self._list_notif:
-                    notif_card = NotifCard(self._db_fileName, notif_data, update_ui_callback=self.refresh_notifikasi,parent = self)
-                    self.notif_layout.addWidget(notif_card, row, col)
 
-                    col += 1
-                    if col > 1: 
-                        col = 0
-                        row += 1
+        # Tambahkan kembali card
+        row = 0
+        col = 0
+        if not self._list_notif:  # Mengecek jika list kosong
+            empty_label = QLabel("No notifications available.")
+            empty_label.setAlignment(Qt.AlignCenter)
+            self.notif_layout.addWidget(empty_label, 0, 0) 
+        else:
+            for notif_data in self._list_notif:
+                notif_card = NotifCard(self._db_fileName, notif_data, update_ui_callback=self.refresh_notifikasi,parent = self, epoch_time=self.current_epoch_time)
+                self.notif_layout.addWidget(notif_card, row, col)
+
+                col += 1
+                if col > 1: 
+                    col = 0
+                    row += 1
+        upcoming_notif = [notif for notif in self._list_notif if (0 < notif['epoch'] - self.current_epoch_time < 3600 )]
+        expired_notif = [notif for notif in self._list_notif if (0 <= self.current_epoch_time - notif['epoch'] <= 3600)]
+
+        self._home.refresh_notif(upcoming_notif,expired_notif)
+
+        
             
     def setCurrentNotif(self,notif_data):
         self._current_notif = notif_data

@@ -39,6 +39,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 
 
+
 ### Modul 2: Profile
 
 - #### Deskripsi Singkat Modul: Profile adalah halaman yang dapat menerima data dari pengguna dan pengguna dapat mengubah atau melihat data tersebut
@@ -46,6 +47,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
 - #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/521d8e21-2f1a-4ad7-8b66-d0b485ac3cf2)
+
 
 
 ### Modul 3: Exercise
@@ -57,6 +59,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 - #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/1feb2221-1000-4a8d-b7d8-511568e5ea40)
 
 
+
 ### Modul 4: Activity
 
 - #### Deskripsi Singkat Modul: Activity adalah halaman yang berisi langkah dan kalori dari pengguna yang kemudian dapat ditambah, diubah, atau dihapus oleh pengguna dan pengguna dapat melihatnya.
@@ -64,6 +67,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 - #### Pembagian Tugas: Dzubyan Ilman Ramadhan 
 
 - #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/af22e473-3973-4067-aba3-836fe92c637e)
+
 
 
 ### Modul 5: Nutritional Intake
@@ -76,6 +80,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 
 
+
 ### Modul 6: Fitness Advice
 
 - #### Deskripsi Singkat Modul: Fitness Advice adalah halaman yang berisi saran kebugaran untuk user berdasarkan data yang diberikan user kepada aplikasi.
@@ -85,11 +90,13 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 - #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/9d02d301-08ad-4983-86cd-1a8e10686e87)
 
 
+
 ### Modul 7: Notifikasi
 
 - #### Deskripsi Singkat Modul: Notifikasi adalah halaman yang berisi tempat untuk input notifikasi, notifikasi dapat ditambah, diubah, dan dihapus.
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
+
 
 - #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/962fd6ce-1fb4-4c38-bfbd-3f1d0e40ca26)
 
@@ -175,3 +182,4 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 | `id`      | INTEGER  | ID notifikasi, primary key, auto-increment              |
 | `nama`    | TEXT     | Nama notifikasi                                         |
 | `waktu`   | INTEGER  | Waktu notifikasi dalam detik sejak epoch (1 Januari 1970) |
+

@@ -80,7 +80,7 @@ class Notifikasi:
 
         result = fetch_one(connection,cursor,query,params)
 
-        if result:
+        if result: 
             self._id = result[0]
             self._nama = result[1]
             self._waktu = result[2]
