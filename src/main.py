@@ -4,6 +4,7 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from frontend.profile import Profile
+from frontend.aktivitas_fisik import ActivityUI
 from PyQt5.QtGui import QFontDatabase, QFont
 
 font_path = "src/assets/fonts/pjs-med.ttf"
@@ -33,7 +34,7 @@ class MainWindow(QMainWindow):
         excercise = QLabel("exercise")
         self.pageManager.addWidget(excercise)
 
-        activity = QLabel("activity")
+        activity = ActivityUI(db_filename)
         self.pageManager.addWidget(activity)
 
         nutrition = QLabel("nutrition")

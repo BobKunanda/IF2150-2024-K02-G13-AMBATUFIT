@@ -102,7 +102,7 @@ class ListAktivitas:
         connection, cursor = connect_db(self._db_filename)
 
         query = """
-            SELECT * FROM aktivitas_fisik
+            SELECT * FROM aktivitas_fisik ORDER BY id_aktivitas DESC;
         """
         
         result = fetch_all(connection,cursor,query)

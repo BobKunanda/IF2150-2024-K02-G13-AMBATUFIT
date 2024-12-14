@@ -5,25 +5,32 @@ QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QComboBox, QLineEdit
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer, QDate, QDateTime
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
+from backend.controllers.AktivitasFisikController import *
+
 class Log(QFrame):
-    def __init__(self, parent_layout):
+    def init(self, parent_layout, db_fileName, data_log):
+        self._data_log = data_log
+        self.db_fileName = db_fileName
         super().__init__()
         self.parent_layout = parent_layout
-
         self.setStyleSheet("""
             border: none;
             background-color: #ffffff;
         """)
         self.setFixedSize(1000, 300)
-
+        self.date = data_log['date']
+        self.time = data_log['jam']
+        self.activity = data_log['id_latihan']
+        self.achievement = data_log['capaian']
+        self.calorie = data_log['kalori']
         # Add a label inside the box
         self.box_area = QHBoxLayout(self)
         self.text_area = QVBoxLayout()
-        self.text1 = QLabel("Date : ")
-        self.text2 = QLabel("Time : ")
-        self.text3 = QLabel("Activity: ")
-        self.text4 = QLabel("Achieved : ")
-        self.text5 = QLabel("Calories burned : ")
+        self.text1 = QLabel(f"Date : {self.date}")
+        self.text2 = QLabel(f"Time : {self.time}")
+        self.text3 = QLabel(f"Activity: {self.activity}")
+        self.text4 = QLabel(f"Achieved : {self.achivement}")
+        self.text5 = QLabel(f"Calories burned : {self.calorie}")
 
         self.text1.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
         self.text2.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
@@ -156,6 +163,7 @@ class ActivityForm(QWidget):
         self.form_box.setFixedSize(2000, 600)
         self.form_layout = QVBoxLayout(self.form_box)
 
+        #JANGAN LUPA UBAH TANGGAL DARI GARING KE YY-MM-DD
         date_form = QDateTimeEdit()
         date_form.setDateTime(QDateTime.currentDateTime())
         activity_form = QComboBox()
@@ -355,11 +363,12 @@ class ActivityForm(QWidget):
 
 
 class ActivityUI(QWidget):
-    def __init__(self):
+    def __init__(self, db_fileName):
         super().__init__()
         self.setWindowTitle("Aktivitas Fisik")
         self.resize(500, 500)
         self.setStyleSheet("background-color: #f5f5f5;")
+        self.db_fileName = db_fileName
 
         #Initialize
         self.master_layout = QVBoxLayout(self)
@@ -409,9 +418,10 @@ class ActivityUI(QWidget):
         self.master_layout.addWidget(self.header)
         self.log_menu_layout.addWidget(self.log_area)
         self.master_layout.addLayout(self.stacked_layout)
-        for i in range(10):
+        self.displayed_log = ListAktivitasController(db_fileName).getListAktivitas()
+        for data in self.displayed_log:
             #Sementara kyk gini
-            self.log = Log(self.box_layout)
+            self.log = Log(self.box_layout, self.db_fileName, data)
             self.box_layout.addWidget(self.log)
         
     # def show_form(self): 
