@@ -52,7 +52,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Bob Kunanda
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![exercise](https://github.com/BobKunanda/IF2150-2024-K02-G13-AMBATUFIT/docs/exercise/exercise_show_1.png)
 
 ### Modul 4: Activity
 
