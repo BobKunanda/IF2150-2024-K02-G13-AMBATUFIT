@@ -1,4 +1,8 @@
-from src.data.database import connect_db, execute_query, fetch_one
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
+from src.data.database import connect_db, execute_query, fetch_one, fetch_all
 
 class AktivitasFisik:
     def __init__(self, db_filename):
@@ -89,3 +93,30 @@ class AktivitasFisik:
         # Menutup koneksi
         connection.close()
 
+class ListAktivitas:
+    def __init__(self, db_filename):
+        self._db_filename = db_filename
+        self._list_aktivitas = None
+
+    def getListAktivitas(self):
+        connection, cursor = connect_db(self._db_filename)
+
+        query = """
+            SELECT * FROM aktivitas_fisik
+        """
+        
+        result = fetch_all(connection,cursor,query)
+
+        if result:
+            self._list_aktivitas = result
+        else:
+            self._list_aktivitas = None
+
+        connection.close()
+
+        return self._list_aktivitas
+
+
+if __name__ == "__main__":
+    list_aktivitas = ListAktivitas("src/data/data.db")
+    print(list_aktivitas.getListAktivitas())
