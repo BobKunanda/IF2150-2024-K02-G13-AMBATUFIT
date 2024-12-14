@@ -1,4 +1,4 @@
-IF2150-2024-K02-G13-AMBATUFIT
+![image](https://github.com/user-attachments/assets/5eeae6c4-1276-44e5-bf55-ae714dea7301)IF2150-2024-K02-G13-AMBATUFIT
 
 # Project AMBATUFIT
 
@@ -35,7 +35,7 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: 
 
 
 ### Modul 2: Profile
@@ -44,7 +44,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/521d8e21-2f1a-4ad7-8b66-d0b485ac3cf2)
+
 
 ### Modul 3: Exercise
 
@@ -52,7 +53,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Bob Kunanda
 
-- #### Tangkapan Layar: ![exercise](https://github.com/BobKunanda/IF2150-2024-K02-G13-AMBATUFIT/docs/exercise/exercise_show_1.png)
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/1feb2221-1000-4a8d-b7d8-511568e5ea40)
+
 
 ### Modul 4: Activity
 
@@ -68,7 +70,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Zulfaqqar Nayaka Athadiansyah
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/c9c00247-da34-406e-8bea-49e336461f00)
+
 
 
 ### Modul 6: Fitness Advice
@@ -85,7 +88,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/962fd6ce-1fb4-4c38-bfbd-3f1d0e40ca26)
+
 
 ## Basis Data
 
