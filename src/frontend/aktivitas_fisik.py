@@ -8,7 +8,8 @@ from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 from backend.controllers.AktivitasFisikController import *
 
 class Log(QFrame):
-    def __init__(self, parent_layout, data_log):
+    def __init__(self, parent_layout, db_fileName, data_log):
+        self.db_fileName = db_fileName
         self._data_log = data_log
         super().__init__()
         self.parent_layout = parent_layout
@@ -129,12 +130,14 @@ class Log(QFrame):
         # Show the dialog and get the response
         response = dialog.exec_()
         if response == QMessageBox.Yes:
-            self.remove_box()
+            self.remove_log()
         else:
             pass
 
-    def remove_box(self):
+    def remove_log(self):
         if self is not None:
+            print(self._data_log)
+            AktivitasFisikController(self.db_fileName).deleteAktivitas(self._data_log)
             self.parent_layout.removeWidget(self)
             self.deleteLater()  # Deletes the widget
 
@@ -366,6 +369,7 @@ class ActivityForm(QWidget):
             data_log["capaian"] = self.achievement_form.text()
             data_log["kalori"] = self.calorie_form.text()
             AktivitasFisikController(self.db_fileName).addAktivitas(data_log)
+            #self.parent().show_logs()
             self.switch_to_ui()
         else:
             pass
@@ -430,7 +434,7 @@ class ActivityUI(QWidget):
         self.displayed_log = ListAktivitasController(self.db_fileName).getListAktivitas()
         for data in self.displayed_log:
             #Sementara kyk gini
-            self.log = Log(self.log_area, data_log=data)
+            self.log = Log(self.log_menu_layout, self.db_fileName, data_log=data)
             self.box_layout.addWidget(self.log)
         
     # def show_form(self): 
@@ -438,13 +442,12 @@ class ActivityUI(QWidget):
 
     # def show_log_area(self): 
     #     self.stacked_layout.setCurrentWidget(self.log_area)
-        
+
     def toggle_form(self):
         """Toggle between pages."""
         current_index = self.stacked_layout.currentIndex()
         next_index = (current_index + 1) % self.stacked_layout.count()
         self.stacked_layout.setCurrentIndex(next_index)
-
 
 if __name__ == "__main__":
     app = QApplication([])

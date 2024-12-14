@@ -108,6 +108,7 @@ class AktivitasFisik:
 
         # Menjalankan query untuk memperbarui data
         execute_query(connection, cursor, query, params)
+        print("Deleted!")
 
         # Menutup koneksi
         connection.close()
@@ -179,6 +180,4 @@ class ListAktivitas:
 
 if __name__ == "__main__":
     aktivitas = AktivitasFisik("src/data/data.db")
-    aktivitas.setActivityName("Situp")
-    aktivitas.get_id_from_activity()
-    print(aktivitas.getActivityId())
+    
