@@ -87,8 +87,8 @@ class AktivitasFisik:
             self._log_id = result[0]
             self._date = result[1]
             self._activity_id = result[2]
-            self._capaian = result[3]
-            self.kalori = result[4]
+            self._achievement = result[3]
+            self._calorie = result[4]
 
         # Menutup koneksi
         connection.close()
