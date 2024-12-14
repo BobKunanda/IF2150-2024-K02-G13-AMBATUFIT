@@ -50,7 +50,8 @@ class AktivitasFisikController:
         self._model_aktivitas.add_log()
             
     def deleteAktivitas(self,data_log):
-        self._model_aktivitas.setActivityId(data_log['id'])
+
+        self._model_aktivitas.setLogId(data_log['id'])
         self._model_aktivitas.delete_log()
 
 class ListAktivitasController:
