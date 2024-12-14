@@ -223,11 +223,16 @@ class ActivityForm(QWidget):
         text2 = QLabel("Aktivitas : ")
         text3 = QLabel("Capaian : ")
         text4 = QLabel("Kalori : ")
+        text5 = QLabel("km")
+        text6 = QLabel("kcal")
 
         text1.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
         text2.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
         text3.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
         text4.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+        text5.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+        text6.setStyleSheet("border:none; font-family: Arial; font-size:40px;")
+
 
         row1.addWidget(text1)
         row1.addWidget(self.date_form)
@@ -235,8 +240,10 @@ class ActivityForm(QWidget):
         row2.addWidget(self.activity_form)
         row3.addWidget(text3)
         row3.addWidget(self.achievement_form)
+        row3.addWidget(text5)
         row4.addWidget(text4)
         row4.addWidget(self.calorie_form)
+        row4.addWidget(text6)
 
         self.form_layout.addLayout(row1)
         self.form_layout.addLayout(row2)
