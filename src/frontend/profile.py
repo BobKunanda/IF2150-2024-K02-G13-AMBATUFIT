@@ -267,6 +267,9 @@ class Profile(QWidget):
                 new_value = self.inputFields[label[1]].currentText()
             else:
                 new_value = self.inputFields[label[1]].text().strip()
+            if not new_value:
+                self.showWarningPopup(f"{label[1]} cannot be empty.")
+                return
 
             # Tampilkan pop-up jika input kosong
             if label[1] == "Fitness Goal" and new_value == "Select Goal":
@@ -295,9 +298,6 @@ class Profile(QWidget):
                     return;
     
     
-            if not new_value:
-                self.showWarningPopup(f"{label[1]} cannot be empty.")
-                return
 
             updated_data[label[0]] = new_value
 

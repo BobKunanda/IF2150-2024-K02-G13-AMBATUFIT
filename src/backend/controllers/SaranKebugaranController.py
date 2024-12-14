@@ -37,7 +37,8 @@ class SaranKebugaranController:
             "mental_health": 12,
             "general_health": 13,
         }
-        
-        tujuan = self.personal_data_controller.get_profile_data()['tujuan']
+        if self.personal_data_controller.get_profile_data()["tujuan"] is None:
+            return
+        tujuan = self.personal_data_controller.get_profile_data()["tujuan"]
         saran_kebugaran_id = mapper[tujuan]
         return self.get_saran_kebugaran_by_id(saran_kebugaran_id)
