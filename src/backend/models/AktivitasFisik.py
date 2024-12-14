@@ -8,7 +8,6 @@ class AktivitasFisik:
         self._activity_id = None
         self._achievement = None
         self._calorie = None
-        #self.get_profile()
 
     def getLogId(self):
         return self._log_id
@@ -41,10 +40,32 @@ class AktivitasFisik:
     def setCalorie(self, calorie):
         self._calorie = calorie
 
-    # Fungsi untuk mengupdate data pada baris dengan id = 1
-    def update_log(self):
-        pass
-
-    # Fungsi untuk mendapatkan data profil (misalnya jika ingin mendapatkan data id=1)
+    
     def add_log(self):
-        pass
+        connection, cursor = connect_db(self.db_filename)
+        # Query untuk mengupdate data pada id = 1
+        query = """
+            INSERT INTO aktivitas_fisik(tanggal, id_latihan, capaian, kalori)
+            VALUES (?,?,?,?)
+        """
+        params = (self._date, self._activity_id, self._achievement, self._calorie)
+
+        # Menjalankan query untuk memperbarui data
+        execute_query(connection, cursor, query, params)
+
+        # Menutup koneksi
+        connection.close()
+    
+    def delete_log(self):
+        connection, cursor = connect_db(self.db_filename)
+        query = """
+            DELETE FROM aktivitas_fisik WHERE (id_aktivitas = ?)
+        """
+        params = (self._log_id,)
+
+        # Menjalankan query untuk memperbarui data
+        execute_query(connection, cursor, query, params)
+
+        # Menutup koneksi
+        connection.close()
+
