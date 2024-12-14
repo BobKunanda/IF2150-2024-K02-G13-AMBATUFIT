@@ -65,7 +65,7 @@ class Home(QWidget):
         self.current_epoch_time = int(time.time())
 
         # Split notifications into upcoming and expired (late)
-        self.upcoming_notif = [notif for notif in list_notif if (0 <= notif['epoch'] - self.current_epoch_time <= 3600 )]
+        self.upcoming_notif = [notif for notif in list_notif if (0 <= notif['epoch'] - self.current_epoch_time < 3600 )]
         self.expired_notif = [notif for notif in list_notif if (0 <= self.current_epoch_time - notif['epoch'] <= 3600)]
         # Main layout
     
@@ -153,12 +153,11 @@ class Home(QWidget):
     def refresh_name(self, name):
         self.header.setText(f"Welcome back, {name}!")
     def refresh_notif(self,upcoming_list,late_list):
-        widget = self.main_layout.itemAt(1).widget()
-        if widget is not None:
-            widget.deleteLater()
-        widget = self.main_layout.itemAt(2).widget()
-        if widget is not None:
-            widget.deleteLater()
+        while self.main_layout.count() > 1:
+            item = self.main_layout.takeAt(1) 
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
 
         self.create_notification_section(self.main_layout, "Upcoming Notifications", upcoming_list, "src/assets/icons/upcoming.png")
         self.create_notification_section(self.main_layout, "Late Notifications", late_list, "src/assets/icons/late.png")

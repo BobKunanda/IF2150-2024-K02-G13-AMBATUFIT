@@ -272,6 +272,29 @@ class Profile(QWidget):
             if label[1] == "Fitness Goal" and new_value == "Select Goal":
                 self.showWarningPopup(f"{label[1]} Select goal first.")
                 return
+            elif label[1] == "Age":
+                if int(new_value) <= 0:
+                    self.showWarningPopup(f"{label[1]} cannot lower than 0.")
+                    return;
+                elif int(new_value) > 99:
+                    self.showWarningPopup(f"{label[1]} cannot higher than 99.")
+                    return;
+            elif label[1] == "Height":
+                if int(new_value) <= 0:
+                    self.showWarningPopup(f"{label[1]} cannot lower than 0.")
+                    return;
+                elif int(new_value) >= 350:
+                    self.showWarningPopup(f"{label[1]} cannot higher than 350.")
+                    return;
+            elif label[1] == "Weight":
+                if int(new_value) <= 0:
+                    self.showWarningPopup(f"{label[1]} cannot lower than 0.")
+                    return;
+                elif int(new_value) >= 350:
+                    self.showWarningPopup(f"{label[1]} cannot higher than 350.")
+                    return;
+    
+    
             if not new_value:
                 self.showWarningPopup(f"{label[1]} cannot be empty.")
                 return
