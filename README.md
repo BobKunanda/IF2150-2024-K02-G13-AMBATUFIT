@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/5eeae6c4-1276-44e5-bf55-ae714dea7301)IF2150-2024-K02-G13-AMBATUFIT
+IF2150-2024-K02-G13-AMBATUFIT
 
 # Project AMBATUFIT
 
