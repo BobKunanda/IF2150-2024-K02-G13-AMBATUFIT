@@ -35,7 +35,9 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/b3428211-14a2-4ffb-83e8-6ee88e5cb6dc)
+
+
 
 
 ### Modul 2: Profile
@@ -44,7 +46,9 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/521d8e21-2f1a-4ad7-8b66-d0b485ac3cf2)
+
+
 
 ### Modul 3: Exercise
 
@@ -52,7 +56,9 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Bob Kunanda
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/1feb2221-1000-4a8d-b7d8-511568e5ea40)
+
+
 
 ### Modul 4: Activity
 
@@ -60,7 +66,9 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Dzubyan Ilman Ramadhan 
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/af22e473-3973-4067-aba3-836fe92c637e)
+
+
 
 ### Modul 5: Nutritional Intake
 
@@ -68,7 +76,9 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Zulfaqqar Nayaka Athadiansyah
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/c9c00247-da34-406e-8bea-49e336461f00)
+
+
 
 
 ### Modul 6: Fitness Advice
@@ -77,7 +87,9 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Zulfaqqar Nayaka Athadiansyah
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/9d02d301-08ad-4983-86cd-1a8e10686e87)
+
+
 
 ### Modul 7: Notifikasi
 
@@ -85,21 +97,89 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar:
+
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/962fd6ce-1fb4-4c38-bfbd-3f1d0e40ca26)
 
 
-Nama Tabel 1
+## Basis Data
 
-Atribut:
-id (tipe data, deskripsi)
-nama (tipe data, deskripsi)
-created_at (tipe data, deskripsi)
-Deskripsi singkat tentang kegunaan tabel ini.
-Nama Tabel 2
+### Tabel `personal_data`
+| Kolom   | Tipe     | Deskripsi                                |
+|---------|----------|------------------------------------------|
+| `id`    | INTEGER  | ID unik untuk setiap data pribadi (Auto Increment) |
+| `nama`  | TEXT     | Nama lengkap dari individu              |
+| `usia`  | INTEGER  | Usia individu dalam tahun                |
+| `tinggi`| REAL     | Tinggi badan individu dalam sentimeter  |
+| `berat` | REAL     | Berat badan individu dalam kilogram     |
+| `tujuan`| TEXT     | Tujuan yang ingin dicapai oleh individu (misalnya: menurunkan berat badan, meningkatkan massa otot) |
 
-Atribut:
-id (tipe data, deskripsi)
-judul (tipe data, deskripsi)
-penulis (tipe data, deskripsi)
-Deskripsi singkat tentang kegunaan tabel ini.
-(Tambahkan tabel lainnya sesuai kebutuhan)
+### Tabel `latihan`
+| Kolom   | Tipe     | Deskripsi                                |
+|---------|----------|------------------------------------------|
+| `id`    | INTEGER  | ID unik untuk setiap latihan (Auto Increment) |
+| `nama`  | TEXT     | Nama latihan (misalnya: push-up, squat)  |
+
+### Tabel `skema_latihan`
+| Kolom       | Tipe     | Deskripsi                                  |
+|-------------|----------|--------------------------------------------|
+| `id`        | INTEGER  | ID unik untuk setiap skema latihan (Auto Increment) |
+| `nama`      | TEXT     | Nama skema latihan (misalnya: latihan kardio, latihan kekuatan) |
+| `deskripsi` | TEXT     | Deskripsi tentang skema latihan tersebut  |
+| `tipe`      | TEXT     | Tipe latihan (misalnya: aerobic, strength, flexibility) |
+| `durasi`    | INTEGER  | Durasi latihan dalam menit                 |
+
+### Tabel `detail_skema_latihan`
+| Kolom        | Tipe     | Deskripsi                                         |
+|--------------|----------|---------------------------------------------------|
+| `id_skema`   | INTEGER  | ID skema latihan yang merujuk pada tabel `skema_latihan` |
+| `id_urut`    | INTEGER  | Urutan dalam detail skema latihan (digabung dengan `id_skema` sebagai primary key) |
+| `id_latihan` | INTEGER  | ID latihan yang merujuk pada tabel `latihan`      |
+| `reps`       | INTEGER  | Jumlah repetisi dalam latihan                    |
+| `sets`       | INTEGER  | Jumlah set dalam latihan                         |
+
+### Tabel `aktivitas_fisik`
+| Kolom        | Tipe     | Deskripsi                                             |
+|--------------|----------|-------------------------------------------------------|
+| `id_aktivitas` | INTEGER  | ID aktivitas fisik, sebagai primary key yang auto increment |
+| `id_latihan`  | INTEGER  | ID latihan yang merujuk pada tabel `latihan`          |
+| `nama`        | TEXT     | Nama aktivitas fisik                                  |
+| `kalori`      | REAL     | Jumlah kalori yang dibakar dalam aktivitas            |
+| `tanggal`     | TEXT     | Tanggal aktivitas fisik dilakukan                     |
+
+
+### Tabel `nutrisi`
+| Kolom     | Tipe     | Deskripsi                                      |
+|-----------|----------|------------------------------------------------|
+| `id`      | INTEGER  | ID nutrisi, sebagai primary key yang auto increment |
+| `name`    | TEXT     | Nama dari nutrisi, tidak boleh kosong (NOT NULL) |
+
+### Tabel `asupan_nutrisi`
+| Kolom     | Tipe     | Deskripsi                                      |
+|-----------|----------|------------------------------------------------|
+| `id`      | INTEGER  | ID asupan nutrisi, sebagai primary key yang auto increment |
+| `name`    | TEXT     | Nama dari asupan nutrisi, tidak boleh kosong (NOT NULL) |
+| `datetime`| TEXT     | Waktu dan tanggal pencatatan asupan nutrisi |
+
+
+### Tabel `detail_asupan_nutrisi`
+| Kolom      | Tipe     | Deskripsi                                           |
+|------------|----------|-----------------------------------------------------|
+| `id_urut`  | INTEGER  | Urutan detail asupan nutrisi, digunakan bersama `id_asupan` sebagai primary key |
+| `id_asupan`| INTEGER  | ID asupan nutrisi, merujuk pada ID yang ada di tabel `asupan_nutrisi` |
+| `id_nutrisi`| INTEGER | ID nutrisi yang terkait, merujuk pada ID yang ada di tabel `nutrisi` |
+| `kandungan`| REAL     | Jumlah kandungan nutrisi dalam asupan (misalnya dalam gram atau miligram) |
+
+### Tabel `saran_kebugaran`
+| Kolom           | Tipe     | Deskripsi                                                   |
+|-----------------|----------|-------------------------------------------------------------|
+| `id`            | INTEGER  | ID saran kebugaran, primary key, auto-increment              |
+| `saran_latihan` | TEXT     | Saran latihan fisik yang disarankan                          |
+| `saran_nutrisi` | TEXT     | Saran nutrisi yang disarankan untuk mendukung kebugaran      |
+
+### Tabel `notifikasi`
+| Kolom     | Tipe     | Deskripsi                                               |
+|-----------|----------|---------------------------------------------------------|
+| `id`      | INTEGER  | ID notifikasi, primary key, auto-increment              |
+| `nama`    | TEXT     | Nama notifikasi                                         |
+| `waktu`   | INTEGER  | Waktu notifikasi dalam detik sejak epoch (1 Januari 1970) |
+
