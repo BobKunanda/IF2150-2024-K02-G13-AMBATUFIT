@@ -6,8 +6,6 @@ from frontend.sidebar import SideBar
 from frontend.profile import Profile
 from PyQt5.QtGui import QFontDatabase, QFont, QIcon
 from frontend.Exercise.exercise import Exercise
-from frontend.DisplayNotifikasi import DisplayNotif
-
 font_path = "src/assets/fonts/pjs-med.ttf"
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -47,7 +45,7 @@ class MainWindow(QMainWindow):
         advice = QLabel("advice")
         self.pageManager.addWidget(advice)
 
-        notification = DisplayNotif(db_filename)
+        notification = QLabel("notification")
         self.pageManager.addWidget(notification)
         #----------------------------------------------------------#
 
