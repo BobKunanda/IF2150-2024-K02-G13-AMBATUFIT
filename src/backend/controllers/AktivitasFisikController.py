@@ -41,7 +41,7 @@ class AktivitasFisikController:
         _datetime = datetime.combine(_date, _time)
         self._model_aktivitas.setDate(_datetime)
         self._model_aktivitas.setActivityId(data_log['id_aktivitas'])
-        self._model_aktivitas.setActivityId(data_log['nama_aktivitas'])
+        self._model_aktivitas.setActivityName(data_log['nama_aktivitas'])
         self._model_aktivitas.setAchivement(data_log['capaian'])
         self._model_aktivitas.setCalorie(data_log['kalori'])
         self._model_aktivitas.createAktivitas()

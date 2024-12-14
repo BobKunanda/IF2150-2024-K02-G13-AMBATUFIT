@@ -362,6 +362,7 @@ class ActivityForm(QWidget):
             self.switch_to_ui()
         else:
             pass
+            
 
 
 
