@@ -8,6 +8,7 @@ from frontend.profile import Profile
 from frontend.home import Home
 from frontend.DisplayAsupanNutrisi import AsupanNutrisiWidget
 
+from frontend.aktivitas_fisik import ActivityUI
 from PyQt5.QtGui import QFontDatabase, QFont, QIcon
 from frontend.Exercise.exercise import Exercise
 from frontend.DisplayNotifikasi import DisplayNotif
@@ -43,7 +44,7 @@ class MainWindow(QMainWindow):
         excercise = Exercise(db_filename)
         self.pageManager.addWidget(excercise)
 
-        activity = QLabel("activity")
+        activity = ActivityUI(db_filename)
         self.pageManager.addWidget(activity)
 
         nutrition = AsupanNutrisiWidget(db_filename)
