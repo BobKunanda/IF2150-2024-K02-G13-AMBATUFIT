@@ -142,8 +142,9 @@ class Log(QFrame):
             self.deleteLater()  # Deletes the widget
 
 class ActivityForm(QWidget):
-    def __init__(self, switch_to_ui, db_fileName):
+    def __init__(self, switch_to_ui, db_fileName,parent = None):
         super().__init__()
+        self._parent = parent
         self.switch_to_ui = switch_to_ui
         self.db_fileName = db_fileName
         self.layout = QVBoxLayout(self)
@@ -371,6 +372,7 @@ class ActivityForm(QWidget):
             AktivitasFisikController(self.db_fileName).addAktivitas(data_log)
             #self.parent().show_logs()
             self.switch_to_ui()
+            self._parent.refresh_ui()
         else:
             pass
             
@@ -415,7 +417,7 @@ class ActivityUI(QWidget):
         self.box_layout.setAlignment(Qt.AlignTop)  # Align boxes at the top
 
         self.stacked_layout = QStackedLayout()
-        self.form = ActivityForm(self.toggle_form, self.db_fileName)
+        self.form = ActivityForm(self.toggle_form, self.db_fileName, parent = self)
         self.stacked_layout.addWidget(self.log_menu)
         self.stacked_layout.addWidget(self.form)
 
@@ -443,11 +445,21 @@ class ActivityUI(QWidget):
     # def show_log_area(self): 
     #     self.stacked_layout.setCurrentWidget(self.log_area)
 
+    def refresh_ui(self):
+        self.displayed_log = ListAktivitasController(self.db_fileName).getListAktivitas()
+        self.log = Log(self.log_menu_layout, self.db_fileName, data_log=self.displayed_log[0])
+        self.box_layout.addWidget(self.log)
+        
+
+
+        
+
     def toggle_form(self):
         """Toggle between pages."""
         current_index = self.stacked_layout.currentIndex()
         next_index = (current_index + 1) % self.stacked_layout.count()
         self.stacked_layout.setCurrentIndex(next_index)
+       
 
 if __name__ == "__main__":
     app = QApplication([])
