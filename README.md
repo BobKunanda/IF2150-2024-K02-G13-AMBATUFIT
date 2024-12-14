@@ -35,7 +35,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Aryo Bama Wiratama
 
-- #### Tangkapan Layar: 
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/b3428211-14a2-4ffb-83e8-6ee88e5cb6dc)
+
 
 
 ### Modul 2: Profile
@@ -62,7 +63,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Dzubyan Ilman Ramadhan 
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/af22e473-3973-4067-aba3-836fe92c637e)
+
 
 ### Modul 5: Nutritional Intake
 
@@ -80,7 +82,8 @@ Aplikasi ini merupakan aplikasi untuk membantu user untuk kebugarannya. Aplikasi
 
 - #### Pembagian Tugas: Zulfaqqar Nayaka Athadiansyah
 
-- #### Tangkapan Layar:
+- #### Tangkapan Layar: ![image](https://github.com/user-attachments/assets/9d02d301-08ad-4983-86cd-1a8e10686e87)
+
 
 ### Modul 7: Notifikasi
 
