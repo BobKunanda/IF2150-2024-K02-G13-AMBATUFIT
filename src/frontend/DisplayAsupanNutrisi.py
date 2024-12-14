@@ -270,20 +270,21 @@ class AsupanNutrisiWidget(QWidget):
         air = "0.0" if airEdit.text() == "" else airEdit.text()
         
         # Cek apakah nama asupan kosong
-        if nameEdit.text() == "":
-            QMessageBox.warning(self, "Invalid Input", "Mohon masukkan nama asupan.")
-            dialog.exec_()
-            return
         try:
+            if nameEdit.text() == "": raise ValueError
+            
             # Cek apakah input valid
             karbo = float(karbo)
             protein = float(protein)
             lemak = float(lemak)
             mineral = float(mineral)
             air = float(air)
+
+            if (karbo < 0 or protein < 0 or lemak < 0 or mineral < 0 or air < 0):
+                raise ValueError
         except ValueError:
             # Kalo input gak valid, tampilkan pesan error
-            QMessageBox.warning(self, "Invalid Input", "Mohon masukkan input yang valid berupa bilangan desimal.")
+            QMessageBox.warning(self, "Invalid Input", "Mohon masukkan input yang valid berupa bilangan desimal positif.")
             dialog.exec_()
             return
 
@@ -296,6 +297,10 @@ class AsupanNutrisiWidget(QWidget):
 
         # Reset UI
         self.resetUI()
+        
+        # Pesan sukses
+        QMessageBox.information(self, "Success", f"Asupan nutrisi {name} berhasil ditambahkan.")
+
         dialog.accept()
 
     def onEditAccepted(self, nameEdit, karboEdit, proteinEdit, lemakEdit, mineralEdit, airEdit, formContainer, dialog):
@@ -308,15 +313,19 @@ class AsupanNutrisiWidget(QWidget):
         air = airEdit.text()
 
         try:
+            if nameEdit.text() == "": raise ValueError
             # Cek apakah input valid
             float(karbo)
             float(protein)
             float(lemak)
             float(mineral)
             float(air)
+
+            if (float(karbo) < 0 or float(protein) < 0 or float(lemak) < 0 or float(mineral) < 0 or float(air) < 0):
+                raise ValueError
         except ValueError:
             # Kalo input gak valid, tampilkan pesan error
-            QMessageBox.warning(self, "Invalid Input", "Mohon masukkan input yang valid berupa bilangan desimal.")
+            QMessageBox.warning(self, "Invalid Input", "Mohon masukkan input yang valid berupa bilangan desimal positif.")
             dialog.exec_()
             return
 
@@ -334,6 +343,10 @@ class AsupanNutrisiWidget(QWidget):
 
         # Reset UI
         self.resetUI()
+
+        # Pesan sukses
+        QMessageBox.information(self, "Success", f"Asupan nutrisi {name} berhasil diubah.")
+
         dialog.accept()
 
     def deleteAsupan(self, formContainer):
