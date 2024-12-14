@@ -132,6 +132,7 @@ class Log(QFrame):
 class ActivityForm(QWidget):
     def __init__(self, switch_to_ui):
         super().__init__()
+        self.switch_to_ui = switch_to_ui
         self.layout = QVBoxLayout(self)
         subheader = QLabel("Form Log Aktivitas Fisik Baru")
         subheader.setStyleSheet("""
@@ -228,8 +229,8 @@ class ActivityForm(QWidget):
             }
         """
         )
-        add_button.clicked.connect(switch_to_ui)
-        cancel_button.clicked.connect(switch_to_ui)
+        add_button.clicked.connect(self.confirm_adding)
+        cancel_button.clicked.connect(self.switch_to_ui)
         self.layout.addWidget(subheader)
         self.layout.addWidget(self.form_box, alignment= Qt.AlignHCenter | Qt.AlignTop)
         subheader.setAlignment(Qt.AlignCenter)
@@ -241,6 +242,78 @@ class ActivityForm(QWidget):
         button_row.addStretch()
         self.layout.addLayout(button_row)
         self.setLayout(self.layout)
+    
+    def confirm_adding(self):
+        dialog = QMessageBox(self)
+        dialog.setWindowTitle("Konfirmasi Hapus")
+        dialog.setText("Apakah Anda yakin ingin menghapus log ini")
+        #Iconnya jelek anjir ada border itemnnya
+        #dialog.setIcon(QMessageBox.Warning)
+        dialog.setMinimumSize(500, 500)
+        
+        yes_button = dialog.addButton(QMessageBox.Yes)
+        no_button = dialog.addButton(QMessageBox.No)
+        dialog.setStyleSheet("""
+            QMessageBox {
+                background-color: #d0d0d0; /* Ensure no background for icons */
+                color: black;
+                border: none;
+                padding: 5px 15px;
+                font-size: 14px;
+            }
+            QMessageBox QLabel {
+                border: none;
+                font-size: 30px;
+                color: #333;
+            }
+                             
+            QMessageBox Icon {
+                border: none;
+            }
+        """)
+
+        yes_button.setStyleSheet("""
+            QPushButton {
+                min-width: 80px;
+                min-height: 30px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 15px;
+                font-size: 20px;
+            }
+                                 
+            QPushButton:hover{
+                background-color: #106309;
+            }
+        """
+        )
+
+        no_button.setStyleSheet("""
+            QPushButton {
+                min-width: 80px;
+                min-height: 30px;
+                background-color: #de0735;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 5px 15px;
+                font-size: 20px;
+            }
+            
+            QPushButton:hover{
+                background-color: #a6021d;
+            }
+        """
+        )
+        # Show the dialog and get the response
+        response = dialog.exec_()
+        if response == QMessageBox.Yes:
+            self.switch_to_ui()
+        else:
+            pass
+
 
 
 class ActivityUI(QWidget):
