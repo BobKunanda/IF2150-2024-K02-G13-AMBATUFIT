@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont, QFontDatabase, QFont
 
+from backend.controllers.PersonalDataController import ProfileController
+
 font_path = "src/assets/fonts/pjs-med.ttf"
 
 class HoverButton(QPushButton):
@@ -71,12 +73,16 @@ class HoverButton(QPushButton):
 
 
 class SideBar(QWidget):
-    def __init__(self):
+    def __init__(self,db_filename):
         super().__init__()
+
+        name_controller = ProfileController(db_filename)
+        self._data = name_controller.get_profile_data()
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
+    
 
         palette = self.palette()
         palette.setColor(QPalette.Window, QColor(53, 62, 92))
@@ -135,7 +141,11 @@ class SideBar(QWidget):
         """)
         profileLayout.addWidget(self.profileButton, alignment= Qt.AlignmentFlag.AlignCenter)
 
-        self.usernameLabel = QLabel("Username: AryoBama")
+        name = "-"
+        if self._data['nama']:
+            name = self._data['nama']
+
+        self.usernameLabel = QLabel(f"Username: {name} ")
         self.usernameLabel.setFont(font)
         self.usernameLabel.setStyleSheet("color:#ffffff")
         self.usernameLabel.hide()
@@ -213,6 +223,10 @@ class SideBar(QWidget):
             for btn in self.button_widgets:
                 btn.set_active(False)
             button.set_active(True)
+
+    def refresh_name(self,name):
+        self.usernameLabel.setText(f"Username: {name} ")
+
 
 
 class MainWindow(QMainWindow):
