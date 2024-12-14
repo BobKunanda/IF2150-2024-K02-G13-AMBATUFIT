@@ -12,6 +12,7 @@ class AktivitasFisik:
         self._activity_id = None
         self._achievement = None
         self._calorie = None
+        self._activity_name = None
 
     def getLogId(self):
         return self._log_id
@@ -28,6 +29,9 @@ class AktivitasFisik:
     def getCalorie(self):
         return self._calorie
 
+    def getActivityName(self):
+        return self._activity_name
+    
     # Setter methods
     def setLogId(self, log_id):
         self._log_id = log_id
@@ -44,6 +48,8 @@ class AktivitasFisik:
     def setCalorie(self, calorie):
         self._calorie = calorie
 
+    def setActivityName(self, activity_name):
+        self._activity_ = activity_name
     
     def add_log(self):
         connection, cursor = connect_db(self.db_filename)
@@ -76,7 +82,8 @@ class AktivitasFisik:
     def get_log(self):
         connection, cursor = connect_db(self.db_filename)
         query = """
-            SELECT * FROM aktivitas_fisik WHERE (id_aktivitas = ?)
+            select id_aktivitas, tanggal, id_latihan, capaian, kalori, nama from aktivitas_fisik join latihan on latihan.id = aktivitas_fisik.id_latihan
+            where id_aktivitas = ?
         """
         params = (self._log_id,)
 
@@ -89,6 +96,7 @@ class AktivitasFisik:
             self._activity_id = result[2]
             self._achievement = result[3]
             self._calorie = result[4]
+            self._activity_name = result[5]
 
         # Menutup koneksi
         connection.close()
@@ -102,7 +110,8 @@ class ListAktivitas:
         connection, cursor = connect_db(self._db_filename)
 
         query = """
-            SELECT * FROM aktivitas_fisik ORDER BY id_aktivitas DESC;
+            select id_aktivitas, tanggal, id_latihan, capaian, kalori, nama from aktivitas_fisik join latihan on latihan.id = aktivitas_fisik.id_latihan 
+            ORDER BY id_aktivitas DESC;
         """
         
         result = fetch_all(connection,cursor,query)
@@ -128,13 +137,15 @@ class ListAktivitas:
         if result:
             self._list_aktivitas_valid = result
         else:
-            self._list_aktivitas_valid = None
+            self._list_aktivitas = None
 
         connection.close()
 
         return self._list_aktivitas_valid
+    
+
 
 
 if __name__ == "__main__":
     list_aktivitas = ListAktivitas("src/data/data.db")
-    print(list_aktivitas.getAktivitasValid())
+    print(list_aktivitas.getListAktivitas())

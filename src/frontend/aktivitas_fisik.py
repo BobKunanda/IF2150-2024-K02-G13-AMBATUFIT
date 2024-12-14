@@ -19,7 +19,7 @@ class Log(QFrame):
         self.setFixedSize(1000, 300)
         self.date = data_log['date']
         self.time = data_log['jam']
-        self.activity = data_log['id_aktivitas']
+        self.activity = data_log['nama_aktivitas']
         self.achievement = data_log['capaian']
         self.calorie = data_log['kalori']
         # Add a label inside the box
