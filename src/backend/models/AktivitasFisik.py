@@ -38,7 +38,7 @@ class AktivitasFisik:
     def setActivityId(self, activity_id):
         self._activity_id = activity_id
 
-    def setAchhievement(self, achievement):
+    def setAchievement(self, achievement):
         self._achievement = achievement
 
     def setCalorie(self, calorie):

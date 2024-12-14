@@ -8,9 +8,8 @@ from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 from backend.controllers.AktivitasFisikController import *
 
 class Log(QFrame):
-    def init(self, parent_layout, db_fileName, data_log):
+    def __init__(self, parent_layout, data_log):
         self._data_log = data_log
-        self.db_fileName = db_fileName
         super().__init__()
         self.parent_layout = parent_layout
         self.setStyleSheet("""
@@ -20,7 +19,7 @@ class Log(QFrame):
         self.setFixedSize(1000, 300)
         self.date = data_log['date']
         self.time = data_log['jam']
-        self.activity = data_log['id_latihan']
+        self.activity = data_log['id_aktivitas']
         self.achievement = data_log['capaian']
         self.calorie = data_log['kalori']
         # Add a label inside the box
@@ -29,7 +28,7 @@ class Log(QFrame):
         self.text1 = QLabel(f"Date : {self.date}")
         self.text2 = QLabel(f"Time : {self.time}")
         self.text3 = QLabel(f"Activity: {self.activity}")
-        self.text4 = QLabel(f"Achieved : {self.achivement}")
+        self.text4 = QLabel(f"Achieved : {self.achievement}")
         self.text5 = QLabel(f"Calories burned : {self.calorie}")
 
         self.text1.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
@@ -418,10 +417,10 @@ class ActivityUI(QWidget):
         self.master_layout.addWidget(self.header)
         self.log_menu_layout.addWidget(self.log_area)
         self.master_layout.addLayout(self.stacked_layout)
-        self.displayed_log = ListAktivitasController(db_fileName).getListAktivitas()
+        self.displayed_log = ListAktivitasController(self.db_fileName).getListAktivitas()
         for data in self.displayed_log:
             #Sementara kyk gini
-            self.log = Log(self.box_layout, self.db_fileName, data)
+            self.log = Log(self.log_area, data_log=data)
             self.box_layout.addWidget(self.log)
         
     # def show_form(self): 
