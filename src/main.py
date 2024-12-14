@@ -4,13 +4,17 @@ sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QLabel,QStackedLayout
 from frontend.sidebar import SideBar
 from frontend.profile import Profile
-from PyQt5.QtGui import QFontDatabase, QFont
+from PyQt5.QtGui import QFontDatabase, QFont, QIcon
+from frontend.Exercise.exercise import Exercise
+from frontend.DisplayNotifikasi import DisplayNotif
 
 font_path = "src/assets/fonts/pjs-med.ttf"
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setWindowTitle("Ambatufit")
+        self.setWindowIcon(QIcon("src/assets/icons/logo.jpg"))
         self.mainLayout = QHBoxLayout()
         self.mainLayout.setContentsMargins(0,0,0,0)
         self.mainLayout.setSpacing(0)
@@ -23,6 +27,7 @@ class MainWindow(QMainWindow):
 
         # Ini bakalan diisi ntar
         db_filename = os.path.join(os.path.dirname(__file__), 'data', 'data.db')
+
         profile = Profile(db_filename)
         self.pageManager.addWidget(profile)
 
@@ -30,7 +35,7 @@ class MainWindow(QMainWindow):
         self.pageManager.addWidget(home)
         self.pageManager.setCurrentWidget(home) # --> Defaulnya bakal nampilin home dulu
         
-        excercise = QLabel("exercise")
+        excercise = Exercise(db_filename)
         self.pageManager.addWidget(excercise)
 
         activity = QLabel("activity")
@@ -42,7 +47,7 @@ class MainWindow(QMainWindow):
         advice = QLabel("advice")
         self.pageManager.addWidget(advice)
 
-        notification = QLabel("notification")
+        notification = DisplayNotif(db_filename)
         self.pageManager.addWidget(notification)
         #----------------------------------------------------------#
 
