@@ -1,8 +1,8 @@
 import sys
 import os
 from PyQt5.QtWidgets import (QApplication, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QScrollArea, 
-QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QComboBox, QLineEdit, QStackedLayout, QDateEdit, QSizePolicy)
-from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer, QDate
+QMainWindow, QFrame, QPushButton, QSpacerItem, QMessageBox, QComboBox, QLineEdit, QStackedLayout, QDateTimeEdit, QSizePolicy)
+from PyQt5.QtCore import Qt, QPropertyAnimation, QSize, QTimer, QDate, QDateTime
 from PyQt5.QtGui import QColor, QPalette, QIcon, QFont,QIntValidator
 
 class Log(QFrame):
@@ -20,14 +20,16 @@ class Log(QFrame):
         self.box_area = QHBoxLayout(self)
         self.text_area = QVBoxLayout()
         self.text1 = QLabel("Date : ")
-        self.text2 = QLabel("Activity: ")
-        self.text3 = QLabel("Achieved : ")
-        self.text4 = QLabel("Calories burned : ")
+        self.text2 = QLabel("Time : ")
+        self.text3 = QLabel("Activity: ")
+        self.text4 = QLabel("Achieved : ")
+        self.text5 = QLabel("Calories burned : ")
 
         self.text1.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
         self.text2.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
         self.text3.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
         self.text4.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
+        self.text5.setStyleSheet("border:none; font-family: Arial; font-size:30px;")
 
         self.remove_button = QPushButton("X")
         self.remove_button.setFixedSize(50, 30)  # Set button size
@@ -50,6 +52,7 @@ class Log(QFrame):
         self.text_area.addWidget(self.text2)
         self.text_area.addWidget(self.text3)
         self.text_area.addWidget(self.text4)
+        self.text_area.addWidget(self.text5)
         self.box_area.addLayout(self.text_area)
         self.box_area.addLayout(self.row0)
     
@@ -153,8 +156,8 @@ class ActivityForm(QWidget):
         self.form_box.setFixedSize(2000, 600)
         self.form_layout = QVBoxLayout(self.form_box)
 
-        date_form = QDateEdit()
-        date_form.setDate(QDate.currentDate())
+        date_form = QDateTimeEdit()
+        date_form.setDateTime(QDateTime.currentDateTime())
         activity_form = QComboBox()
         achievement_form = QLineEdit()
         achievement_form.setFixedWidth(200)
@@ -202,7 +205,7 @@ class ActivityForm(QWidget):
         row3 = QHBoxLayout()
         row4 = QHBoxLayout()
 
-        text1 = QLabel("Tanggal : ")
+        text1 = QLabel("Tanggal & Waktu: ")
         text2 = QLabel("Aktivitas : ")
         text3 = QLabel("Capaian : ")
         text4 = QLabel("Kalori : ")
