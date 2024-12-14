@@ -144,8 +144,6 @@ class ListAktivitas:
         return self._list_aktivitas_valid
     
 
-
-
 if __name__ == "__main__":
     list_aktivitas = ListAktivitas("src/data/data.db")
     print(list_aktivitas.getListAktivitas())
