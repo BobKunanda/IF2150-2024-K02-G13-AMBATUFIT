@@ -69,3 +69,23 @@ class AktivitasFisik:
         # Menutup koneksi
         connection.close()
 
+    def get_log(self):
+        connection, cursor = connect_db(self.db_filename)
+        query = """
+            SELECT * FROM aktivitas_fisik WHERE (id_aktivitas = ?)
+        """
+        params = (self._log_id,)
+
+        # Menjalankan query untuk memperbarui data
+        result = fetch_one(connection, cursor, query, params)
+
+        if result:
+            self._log_id = result[0]
+            self._date = result[1]
+            self._activity_id = result[2]
+            self._capaian = result[3]
+            self.kalori = result[4]
+
+        # Menutup koneksi
+        connection.close()
+
