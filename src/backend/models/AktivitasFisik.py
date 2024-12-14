@@ -115,8 +115,26 @@ class ListAktivitas:
         connection.close()
 
         return self._list_aktivitas
+    
+    def getAktivitasValid(self):
+        connection, cursor = connect_db(self._db_filename)
+
+        query = """
+            SELECT nama FROM latihan ORDER BY id;
+        """
+        
+        result = fetch_all(connection,cursor,query)
+
+        if result:
+            self._list_aktivitas_valid = result
+        else:
+            self._list_aktivitas_valid = None
+
+        connection.close()
+
+        return self._list_aktivitas_valid
 
 
 if __name__ == "__main__":
     list_aktivitas = ListAktivitas("src/data/data.db")
-    print(list_aktivitas.getListAktivitas())
+    print(list_aktivitas.getAktivitasValid())

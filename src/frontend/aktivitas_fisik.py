@@ -139,9 +139,10 @@ class Log(QFrame):
             self.deleteLater()  # Deletes the widget
 
 class ActivityForm(QWidget):
-    def __init__(self, switch_to_ui):
+    def __init__(self, switch_to_ui, db_fileName):
         super().__init__()
         self.switch_to_ui = switch_to_ui
+        self.db_fileName = db_fileName
         self.layout = QVBoxLayout(self)
         subheader = QLabel("Form Log Aktivitas Fisik Baru")
         subheader.setStyleSheet("""
@@ -166,6 +167,9 @@ class ActivityForm(QWidget):
         date_form = QDateTimeEdit()
         date_form.setDateTime(QDateTime.currentDateTime())
         activity_form = QComboBox()
+        input_list = ListAktivitasController(self.db_fileName).getListAktivitasValid()
+        for i in input_list:
+            activity_form.addItem(i)
         achievement_form = QLineEdit()
         achievement_form.setFixedWidth(200)
         ach_validator = QIntValidator(0, 1000)
@@ -401,7 +405,7 @@ class ActivityUI(QWidget):
         self.box_layout.setAlignment(Qt.AlignTop)  # Align boxes at the top
 
         self.stacked_layout = QStackedLayout()
-        self.form = ActivityForm(self.toggle_form)
+        self.form = ActivityForm(self.toggle_form, self.db_fileName)
         self.stacked_layout.addWidget(self.log_menu)
         self.stacked_layout.addWidget(self.form)
 
